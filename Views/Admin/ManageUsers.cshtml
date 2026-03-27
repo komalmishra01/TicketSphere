@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Manage Users</h3>
+    <a href="/Admin/Dashboard" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Riya Kapoor</td>
+                    <td>riya@company.com</td>
+                    <td><span class="badge bg-light text-dark border">User</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Rahul Jain</td>
+                    <td>rahul@company.com</td>
+                    <td><span class="badge bg-light text-dark border">User</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

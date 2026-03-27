@@ -1,0 +1,248 @@
+@model TicketingSystem_DotNetMVC.Models.Ticket?
+@{
+    ViewData["Title"] = "Ticket Timeline";
+    var tickets = ViewBag.UserTickets as List<TicketingSystem_DotNetMVC.Models.Ticket> ?? new List<TicketingSystem_DotNetMVC.Models.Ticket>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="page-title"><i class="fas fa-chart-line text-primary me-2"></i>Ticket Timeline</h1>
+            <p class="page-subtitle">Track ticket token status in graph timeline view.</p>
+        </div>
+        <button type="button" class="btn btn-outline-secondary">
+            <i class="fas fa-file-export me-2"></i>Export
+        </button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body p-4">
+            <form method="get" asp-action="TicketTimeline" asp-controller="Dashboard" class="row g-3 align-items-end">
+                <div class="col-md-8 col-lg-9">
+                    <label class="form-label fw-semibold">Select Ticket Token</label>
+                    <select name="ticketId" class="form-select" onchange="this.form.submit()">
+                        @foreach (var ticket in tickets)
+                        {
+                            <option value="@ticket.TicketId" selected="@(Model != null && Model.TicketId == ticket.TicketId ? "selected" : null)">
+                                #@ticket.TicketId - @ticket.Title
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="timeline-token-status p-3">
+                        <small class="text-muted d-block">Current Status</small>
+                        @if (Model != null)
+                        {
+                            var statusClass = Model.Status == "Open" ? "primary" :
+                                              Model.Status == "In Progress" ? "warning" :
+                                              "success";
+                            <span class="badge bg-@statusClass mt-1">@Model.Status</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No Ticket</span>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model == null)
+    {
+        <div class="card">
+            <div class="card-body p-5 text-center text-muted">
+                <i class="fas fa-clock-rotate-left fa-2x mb-3"></i>
+                <div class="fw-semibold">No tickets available for timeline view.</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        var assignedReached = Model.AssignedAgentId.HasValue;
+        var updatedReached = Model.UpdatedDate.HasValue || Model.Status == "In Progress" || Model.Status == "Closed";
+        var closedReached = Model.ClosedDate.HasValue || Model.Status == "Closed";
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-diagram-project me-2"></i>Token #@Model.TicketId Timeline Graph</h5>
+                <a href="@Url.Action("TicketDetails", "Dashboard", new { id = Model.TicketId })" class="token-link-tag">Open Ticket</a>
+            </div>
+            <div class="card-body p-4">
+                <div class="timeline-wrapper">
+                    <div class="timeline-line"></div>
+
+                    <div class="timeline-row">
+                        <div class="timeline-time">@Model.CreatedDate.ToString("dd MMM yyyy")<br /><small>@Model.CreatedDate.ToString("hh:mm tt")</small></div>
+                        <div class="timeline-dot done"><i class="fas fa-plus"></i></div>
+                        <div class="timeline-event-card">
+                            <div class="timeline-title">Created</div>
+                            <div class="timeline-text">Ticket #@Model.TicketId created.</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-row">
+                        <div class="timeline-time">@(assignedReached ? (Model.UpdatedDate?.ToString("dd MMM yyyy") ?? Model.CreatedDate.ToString("dd MMM yyyy")) : "Pending")<br /><small>@(assignedReached ? (Model.UpdatedDate?.ToString("hh:mm tt") ?? Model.CreatedDate.ToString("hh:mm tt")) : "--:--")</small></div>
+                        <div class="timeline-dot @(assignedReached ? "done" : "")"><i class="fas fa-user-check"></i></div>
+                        <div class="timeline-event-card">
+                            <div class="timeline-title">Assigned</div>
+                            <div class="timeline-text">@(!string.IsNullOrEmpty(Model.AssignedAgent?.FullName) ? $"Assigned to {Model.AssignedAgent.FullName}" : "Not assigned yet")</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-row">
+                        <div class="timeline-time">@(Model.UpdatedDate?.ToString("dd MMM yyyy") ?? "Pending")<br /><small>@(Model.UpdatedDate?.ToString("hh:mm tt") ?? "--:--")</small></div>
+                        <div class="timeline-dot @(updatedReached ? "done" : "")"><i class="fas fa-pen"></i></div>
+                        <div class="timeline-event-card">
+                            <div class="timeline-title">Updated</div>
+                            <div class="timeline-text">@(Model.UpdatedDate.HasValue ? "Ticket updated with latest progress." : "No update recorded yet.")</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-row mb-0">
+                        <div class="timeline-time">@(Model.ClosedDate?.ToString("dd MMM yyyy") ?? "Pending")<br /><small>@(Model.ClosedDate?.ToString("hh:mm tt") ?? "--:--")</small></div>
+                        <div class="timeline-dot @(closedReached ? "done" : "")"><i class="fas fa-check"></i></div>
+                        <div class="timeline-event-card">
+                            <div class="timeline-title">Closed</div>
+                            <div class="timeline-text">@(Model.ClosedDate.HasValue ? "Ticket has been closed." : "Ticket is not closed yet.")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .timeline-token-status {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #f8fafc;
+        min-height: 80px;
+    }
+
+    .timeline-wrapper {
+        position: relative;
+    }
+
+    .timeline-line {
+        position: absolute;
+        left: 176px;
+        top: 18px;
+        bottom: 20px;
+        width: 3px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #c7d2fe 0%, #dbeafe 100%);
+    }
+
+    .timeline-row {
+        display: grid;
+        grid-template-columns: 140px 40px 1fr;
+        align-items: start;
+        gap: 18px;
+        margin-bottom: 20px;
+    }
+
+    .timeline-time {
+        text-align: right;
+        color: #374151;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .timeline-time small {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .timeline-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid #d1d5db;
+        color: #9ca3af;
+        background: #ffffff;
+        display: grid;
+        place-items: center;
+        z-index: 1;
+    }
+
+    .timeline-dot.done {
+        border-color: #4f46e5;
+        color: #4f46e5;
+        background: #e0e7ff;
+    }
+
+    .timeline-event-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px 18px;
+        box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .timeline-event-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(17, 24, 39, 0.1);
+    }
+
+    .timeline-title {
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .timeline-text {
+        color: #374151;
+    }
+
+    .token-link-tag {
+        text-decoration: none;
+        color: #4f46e5;
+        font-size: 0.82rem;
+        font-weight: 600;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        border-radius: 999px;
+        padding: 4px 10px;
+    }
+
+    .token-link-tag:hover {
+        color: #4338ca;
+        background: #e0e7ff;
+    }
+
+    @@media (max-width: 768px) {
+        .timeline-line {
+            left: 14px;
+            top: 26px;
+        }
+
+        .timeline-row {
+            grid-template-columns: 30px 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .timeline-time {
+            grid-column: 2;
+            text-align: left;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .timeline-dot {
+            width: 26px;
+            height: 26px;
+            font-size: 0.72rem;
+            margin-top: 22px;
+        }
+
+        .timeline-event-card {
+            grid-column: 2;
+            padding: 14px;
+        }
+    }
+</style>

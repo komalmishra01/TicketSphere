@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\MCA\\SEM_2\\Hackathon_2026\\TicketSphere\\TicketingSystem-DotNetMVC.csproj": {}
+    "D:\\TicketSphere\\TicketSphere\\TicketingSystem-DotNetMVC.csproj": {}
   },
   "projects": {
-    "D:\\MCA\\SEM_2\\Hackathon_2026\\TicketSphere\\TicketingSystem-DotNetMVC.csproj": {
+    "D:\\TicketSphere\\TicketSphere\\TicketingSystem-DotNetMVC.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\MCA\\SEM_2\\Hackathon_2026\\TicketSphere\\TicketingSystem-DotNetMVC.csproj",
+        "projectUniqueName": "D:\\TicketSphere\\TicketSphere\\TicketingSystem-DotNetMVC.csproj",
         "projectName": "TicketingSystem-DotNetMVC",
-        "projectPath": "D:\\MCA\\SEM_2\\Hackathon_2026\\TicketSphere\\TicketingSystem-DotNetMVC.csproj",
-        "packagesPath": "C:\\Users\\tofik\\.nuget\\packages\\",
-        "outputPath": "D:\\MCA\\SEM_2\\Hackathon_2026\\TicketSphere\\obj\\",
+        "projectPath": "D:\\TicketSphere\\TicketSphere\\TicketingSystem-DotNetMVC.csproj",
+        "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
+        "outputPath": "D:\\TicketSphere\\TicketSphere\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\tofik\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Asus\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -45,11 +44,33 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -69,7 +90,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

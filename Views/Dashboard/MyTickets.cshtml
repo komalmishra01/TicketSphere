@@ -1,0 +1,161 @@
+@model List<TicketingSystem_DotNetMVC.Models.Ticket>
+@{
+    ViewData["Title"] = "My Tickets - TicketSphere";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="page-title"><i class="fas fa-list-check text-primary me-2"></i>My Tickets</h1>
+            <p class="text-muted">Track and manage all your service requests</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-body p-4">
+            <form method="get" asp-action="MyTickets" asp-controller="Dashboard" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Search by Title</label>
+                    <input type="text" name="searchQuery" class="form-control form-control-lg" 
+                           placeholder="Search tickets..." value="@ViewBag.SearchQuery">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <select name="statusFilter" class="form-select form-select-lg">
+                        <option value="">All Status</option>
+                        <option value="Open" selected="@(ViewBag.StatusFilter == "Open" ? "selected" : null)">Open</option>
+                        <option value="In Progress" selected="@(ViewBag.StatusFilter == "In Progress" ? "selected" : null)">In Progress</option>
+                        <option value="Closed" selected="@(ViewBag.StatusFilter == "Closed" ? "selected" : null)">Closed</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Priority</label>
+                    <select name="priorityFilter" class="form-select form-select-lg">
+                        <option value="">All Priorities</option>
+                        <option value="Low" selected="@(ViewBag.PriorityFilter == "Low" ? "selected" : null)">Low</option>
+                        <option value="Medium" selected="@(ViewBag.PriorityFilter == "Medium" ? "selected" : null)">Medium</option>
+                        <option value="High" selected="@(ViewBag.PriorityFilter == "High" ? "selected" : null)">High</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-redo"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list text-primary me-2"></i>Tickets (@Model.Count)
+                    </h5>
+                    <a href="@Url.Action("CreateTicket", "Dashboard")" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus-circle"></i> New Ticket
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    @if(Model.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket ID</th>
+                                        <th>Title</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Created Date</th>
+                                        <th>Last Updated</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(var ticket in Model)
+                                    {
+                                        <tr class="align-middle">
+                                            <td><strong>#@ticket.TicketId</strong></td>
+                                            <td>
+                                                <div class="text-truncate" style="max-width: 250px;">
+                                                    @ticket.Title
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var priorityBadgeClass = ticket.Priority == "High" ? "danger" :
+                                                                          ticket.Priority == "Medium" ? "warning" :
+                                                                          "info";
+                                                }
+                                                <span class="badge bg-@priorityBadgeClass">
+                                                    @if(ticket.Priority == "High") { <i class="fas fa-arrow-up"></i> }
+                                                    else if(ticket.Priority == "Medium") { <i class="fas fa-minus"></i> }
+                                                    else { <i class="fas fa-arrow-down"></i> }
+                                                    @ticket.Priority
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var statusBadgeClass = ticket.Status == "Open" ? "primary" :
+                                                                         ticket.Status == "In Progress" ? "warning" :
+                                                                         "success";
+                                                    var statusIcon = ticket.Status == "Open" ? "hourglass-start" :
+                                                                   ticket.Status == "In Progress" ? "spinner" :
+                                                                   "check-circle";
+                                                }
+                                                <span class="badge bg-@statusBadgeClass">
+                                                    <i class="fas fa-@statusIcon"></i> @ticket.Status
+                                                </span>
+                                            </td>
+                                            <td>@ticket.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                            <td>@(ticket.UpdatedDate?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")</td>
+                                            <td>
+                                                <a href="@Url.Action("TicketDetails", "Dashboard", new { id = ticket.TicketId })" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> View Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                            <h5 class="text-muted">No Tickets Found</h5>
+                            <p class="text-muted">
+                                @if(ViewBag.SearchQuery != null || ViewBag.StatusFilter != null || ViewBag.PriorityFilter != null)
+                                {
+                                    <span>No tickets match your search criteria. <a href="@Url.Action("MyTickets", "Dashboard")">Clear filters</a></span>
+                                }
+                                else
+                                {
+                                    <span>You haven't created any tickets yet. <a href="@Url.Action("CreateTicket", "Dashboard")">Create your first ticket</a></span>
+                                }
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

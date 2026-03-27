@@ -3,48 +3,86 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TicketingSystem_DotNetMVC</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Ticket System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/TicketingSystem_DotNetMVC.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/panel-base.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TicketingSystem_DotNetMVC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+    @{
+        var userName = Context.Session.GetString("UserName") ?? "Username";
+    }
+
+    <div class="panel-shell">
+        <aside id="sidebar" class="saas-sidebar">
+            <div class="saas-brand">
+                <i class="fa-solid fa-ticket"></i>
+                <span>TicketSphere</span>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            <nav class="saas-nav">
+                <a href="/Dashboard/Dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+                <a href="/Dashboard/MyTickets"><i class="fa-solid fa-list-check"></i> Tickets</a>
+                <a href="/Dashboard/CreateTicket"><i class="fa-solid fa-plus"></i> Create Ticket</a>
+                <a href="/Admin/Reports"><i class="fa-solid fa-chart-line"></i> Reports</a>
+                <a href="/Dashboard/Profile"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="/Account/Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <div class="panel-main">
+            <header class="saas-topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm mobile-sidebar-toggle" onclick="toggleSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="saas-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search tickets, users, updates..." />
+                    </div>
+                </div>
+                <div class="saas-topbar-right">
+                    <button class="icon-btn" type="button" aria-label="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="profile-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-circle-user me-1"></i>@userName
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/Dashboard/Profile"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="/Account/Logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <main class="panel-content">
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - TicketingSystem_DotNetMVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("show");
+        }
+
+        (function setActiveLink() {
+            const path = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.saas-nav a').forEach(a => {
+                const href = a.getAttribute('href').toLowerCase();
+                if (href !== '/' && path.startsWith(href)) {
+                    a.classList.add('active');
+                }
+            });
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

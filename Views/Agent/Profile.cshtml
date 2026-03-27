@@ -1,0 +1,60 @@
+@model TicketingSystem_DotNetMVC.Models.User
+@{
+    ViewData["Title"] = "Agent Profile";
+}
+
+<section class="profile-grid agent-profile-theme">
+    <div class="profile-card profile-identity">
+        <div class="profile-avatar">@((Model.FullName ?? "A")[0])</div>
+        <div>
+            <h2 class="profile-title">@Model.FullName</h2>
+            <p class="profile-subtitle">Support Agent</p>
+            <span class="profile-pill">Operations Team</span>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <h3 class="profile-section-title">Agent Credentials</h3>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <form method="post" asp-action="UpdateProfile" asp-controller="Agent" class="profile-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="userId" value="@Model.UserId" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Agent Name</label>
+                    <input type="text" class="form-control" name="fullName" value="@Model.FullName" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Work Email</label>
+                    <input type="email" class="form-control" value="@Model.Email" disabled />
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-control" name="currentPassword" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" name="newPassword" />
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <small class="text-muted">Last login: @(Model.LastLoginDate?.ToString("dd MMM yyyy hh:mm tt") ?? "Never")</small>
+                <button type="submit" class="btn btn-warning text-dark px-4">Update</button>
+            </div>
+        </form>
+    </div>
+</section>

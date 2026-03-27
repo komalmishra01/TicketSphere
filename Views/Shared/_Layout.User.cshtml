@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TicketSphere User</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/panel-base.css" />
+    <link rel="stylesheet" href="~/css/panel-user.css" />
+</head>
+<body>
+    @{
+        var userName = Context.Session.GetString("UserName") ?? "User";
+    }
+
+    <div class="panel-shell user-shell">
+        <aside id="userSidebar" class="saas-sidebar">
+            <div class="saas-brand">
+                <i class="fa-solid fa-ticket"></i>
+                <span>TicketSphere</span>
+            </div>
+            <nav class="saas-nav">
+                <a href="/Dashboard/Dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+                <a href="/Dashboard/MyTickets"><i class="fa-solid fa-list-check"></i> Tickets</a>
+                <a href="/Dashboard/CreateTicket"><i class="fa-solid fa-square-plus"></i> Create Ticket</a>
+                <a href="/Dashboard/TicketTimeline"><i class="fa-solid fa-chart-line"></i> Ticket Timeline</a>
+                <a href="/Dashboard/Notifications"><i class="fa-solid fa-bell"></i> Notifications</a>
+                <a href="/Dashboard/Profile"><i class="fa-solid fa-user-gear"></i> My Profile</a>
+                <a href="/Account/Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <div class="panel-main user-main">
+            <header class="saas-topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm mobile-sidebar-toggle" onclick="toggleUserSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="saas-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search your tickets..." />
+                    </div>
+                </div>
+                <div class="saas-topbar-right">
+                    <a class="icon-btn" href="/Dashboard/Notifications" aria-label="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                    </a>
+                    <div class="dropdown">
+                        <button class="profile-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-circle-user me-1"></i>@userName
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/Dashboard/Profile"><i class="fa-solid fa-user me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" href="/Dashboard/TicketTimeline"><i class="fa-solid fa-chart-line me-2"></i>Ticket Timeline</a></li>
+                            <li><a class="dropdown-item" href="/Dashboard/Notifications"><i class="fa-solid fa-bell me-2"></i>Notifications</a></li>
+                            <li><a class="dropdown-item" href="/Account/Logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <main class="panel-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleUserSidebar() {
+            document.getElementById("userSidebar").classList.toggle("show");
+        }
+
+        (function setActiveLink() {
+            const path = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.saas-nav a').forEach(a => {
+                if (path.startsWith(a.getAttribute('href').toLowerCase())) {
+                    a.classList.add('active');
+                }
+            });
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

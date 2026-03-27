@@ -1,0 +1,13 @@
+/* Agent accent layer */
+.agent-shell .saas-brand i,
+.agent-shell .saas-nav a:hover,
+.agent-shell .saas-nav a.active,
+.agent-shell .saas-nav a:hover i,
+.agent-shell .saas-nav a.active i {
+  color: #0891b2;
+}
+
+.agent-shell .saas-nav a:hover,
+.agent-shell .saas-nav a.active {
+  background: rgba(6, 182, 212, 0.15);
+}

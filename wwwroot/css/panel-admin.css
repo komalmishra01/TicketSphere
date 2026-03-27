@@ -1,0 +1,13 @@
+/* Admin accent layer */
+.admin-shell .saas-brand i,
+.admin-shell .saas-nav a:hover,
+.admin-shell .saas-nav a.active,
+.admin-shell .saas-nav a:hover i,
+.admin-shell .saas-nav a.active i {
+  color: #4f46e5;
+}
+
+.admin-shell .saas-nav a:hover,
+.admin-shell .saas-nav a.active {
+  background: rgba(79, 70, 229, 0.1);
+}

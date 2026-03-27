@@ -1,3 +1,12 @@
 ﻿@{
-    Layout = "_Layout";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    
+    if (controller == "Dashboard")
+        Layout = "_Layout.User";
+    else if (controller == "Agent")
+        Layout = "_Layout.Agent";
+    else if (controller == "Admin")
+        Layout = "_Layout.Admin";
+    else
+        Layout = "_Layout";
 }

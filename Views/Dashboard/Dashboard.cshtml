@@ -1,0 +1,211 @@
+@{
+    ViewData["Title"] = "Dashboard - TicketSphere";
+}
+
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="page-title"><i class="fas fa-gauge-high text-primary me-2"></i>Dashboard</h1>
+            <p class="page-subtitle">Welcome back! Here's an overview of your tickets and service requests.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("CreateTicket", "Dashboard")" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create New Ticket
+            </a>
+            <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-outline-primary">
+                <i class="fas fa-list me-2"></i>View All Tickets
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 summary-card">
+                <div class="card-body p-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="summary-label">Total Tickets</p>
+                            <h2 class="summary-value text-primary">@ViewBag.TotalTickets</h2>
+                        </div>
+                        <div class="summary-icon" style="background:#e0e7ff;color:#4338ca;">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 summary-card">
+                <div class="card-body p-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="summary-label">Open Tickets</p>
+                            <h2 class="summary-value" style="color:#1d4ed8;">@ViewBag.Open</h2>
+                        </div>
+                        <div class="summary-icon" style="background:#dbeafe;color:#1d4ed8;">
+                            <i class="fas fa-hourglass-start"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 summary-card">
+                <div class="card-body p-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="summary-label">In Progress</p>
+                            <h2 class="summary-value" style="color:#b45309;">@ViewBag.InProgress</h2>
+                        </div>
+                        <div class="summary-icon" style="background:#fef3c7;color:#b45309;">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 summary-card">
+                <div class="card-body p-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="summary-label">Closed Tickets</p>
+                            <h2 class="summary-value" style="color:#15803d;">@ViewBag.Closed</h2>
+                        </div>
+                        <div class="summary-icon" style="background:#dcfce7;color:#15803d;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-8 mb-3 mb-xl-0">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chart-column text-primary me-2"></i>Ticket Overview</h5>
+                    <span class="badge bg-secondary">Live Snapshot</span>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center g-3">
+                        <div class="col-6 col-md-3">
+                            <div class="small text-muted">Total</div>
+                            <div class="h4 mb-0">@ViewBag.TotalTickets</div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="small text-muted">Open</div>
+                            <div class="h4 mb-0" style="color:#1d4ed8;">@ViewBag.Open</div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="small text-muted">In Progress</div>
+                            <div class="h4 mb-0" style="color:#b45309;">@ViewBag.InProgress</div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="small text-muted">Closed</div>
+                            <div class="h4 mb-0" style="color:#15803d;">@ViewBag.Closed</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt text-primary me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body d-grid gap-2">
+                    <a href="@Url.Action("CreateTicket", "Dashboard")" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Create New Ticket
+                    </a>
+                    <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>Manage Existing Tickets
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history text-primary me-2"></i>Recent Tickets
+                    </h5>
+                    <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if((ViewBag.RecentTickets as List<TicketingSystem_DotNetMVC.Models.Ticket>)?.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket ID</th>
+                                        <th>Title</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(var ticket in ViewBag.RecentTickets)
+                                    {
+                                        <tr>
+                                            <td><strong>#@ticket.TicketId</strong></td>
+                                            <td>@ticket.Title</td>
+                                            <td>
+                                                @{
+                                                    var priorityBadgeClass = ticket.Priority == "High" ? "danger" :
+                                                                          ticket.Priority == "Medium" ? "warning" :
+                                                                          "info";
+                                                }
+                                                <span class="badge bg-@priorityBadgeClass">@ticket.Priority</span>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var statusBadgeClass = ticket.Status == "Open" ? "primary" :
+                                                                         ticket.Status == "In Progress" ? "warning" :
+                                                                         "success";
+                                                }
+                                                <span class="badge bg-@statusBadgeClass">@ticket.Status</span>
+                                            </td>
+                                            <td>@ticket.CreatedDate.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                <a href="@Url.Action("TicketDetails", "Dashboard", new { id = ticket.TicketId })" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info m-4" role="alert">
+                            <i class="fas fa-info-circle"></i> No tickets yet. 
+                            <a href="@Url.Action("CreateTicket", "Dashboard")">Create your first ticket</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

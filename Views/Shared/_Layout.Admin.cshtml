@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TicketSphere Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/panel-base.css" />
+    <link rel="stylesheet" href="~/css/panel-admin.css" />
+</head>
+<body>
+    @{
+        var userName = Context.Session.GetString("UserName") ?? "Administrator";
+    }
+
+    <div class="panel-shell admin-shell">
+        <aside id="adminSidebar" class="saas-sidebar">
+            <div class="saas-brand">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Admin Console</span>
+            </div>
+            <nav class="saas-nav">
+                <a href="/Admin/Dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+                <a href="/Admin/AllTickets"><i class="fa-solid fa-list-check"></i> Tickets</a>
+                <a href="/Admin/AllTickets"><i class="fa-solid fa-square-plus"></i> Create Ticket</a>
+                <a href="/Admin/Reports"><i class="fa-solid fa-chart-column"></i> Reports</a>
+                <a href="/Admin/Profile"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="/Admin/ManageUsers"><i class="fa-solid fa-users"></i> Manage Users</a>
+                <a href="/Admin/ManageAgents"><i class="fa-solid fa-user-tie"></i> Manage Agents</a>
+                <a href="/Account/Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <div class="panel-main admin-main">
+            <header class="saas-topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm mobile-sidebar-toggle" onclick="toggleAdminSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="saas-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search tickets, users, agents..." />
+                    </div>
+                </div>
+                <div class="saas-topbar-right">
+                    <button class="icon-btn" type="button" aria-label="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="profile-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-circle-user me-1"></i>@userName
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/Admin/Profile"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="/Account/Logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <main class="panel-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleAdminSidebar() {
+            document.getElementById("adminSidebar").classList.toggle("show");
+        }
+
+        (function setActiveLink() {
+            const path = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.saas-nav a').forEach(a => {
+                if (path.startsWith(a.getAttribute('href').toLowerCase())) {
+                    a.classList.add('active');
+                }
+            });
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

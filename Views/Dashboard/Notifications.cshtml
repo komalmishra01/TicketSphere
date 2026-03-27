@@ -1,0 +1,56 @@
+@model List<TicketingSystem_DotNetMVC.Models.Comment>
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="page-title"><i class="fas fa-bell text-primary me-2"></i>Notifications</h1>
+            <p class="page-subtitle">Updates from agents and admins on your tickets.</p>
+        </div>
+        <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-outline-primary">
+            <i class="fas fa-list me-2"></i>View Tickets
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-envelope-open-text me-2"></i>Latest Updates</h5>
+            <span class="badge bg-secondary">@Model.Count</span>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var item in Model)
+                    {
+                        <a href="@Url.Action("TicketDetails", "Dashboard", new { id = item.TicketId })" class="list-group-item list-group-item-action p-3 notification-item">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="fw-semibold mb-1">
+                                        <i class="fas fa-circle-user text-primary me-1"></i>@item.User.FullName
+                                        <span class="badge bg-info ms-2">@item.User.Role</span>
+                                    </div>
+                                    <div class="text-muted mb-1">
+                                        Ticket #@item.TicketId - @item.Ticket.Title
+                                    </div>
+                                    <div style="white-space: pre-wrap;">@item.Message</div>
+                                </div>
+                                <small class="text-muted text-nowrap">@item.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</small>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="p-5 text-center text-muted">
+                    <i class="fas fa-bell-slash fa-2x mb-3"></i>
+                    <div class="fw-semibold mb-1">No notifications yet</div>
+                    <div>Agent and admin ticket updates will appear here.</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
