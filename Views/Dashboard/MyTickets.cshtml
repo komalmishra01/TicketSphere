@@ -32,9 +32,10 @@
                     <label class="form-label fw-bold">Status</label>
                     <select name="statusFilter" class="form-select form-select-lg">
                         <option value="">All Status</option>
-                        <option value="Open" selected="@(ViewBag.StatusFilter == "Open" ? "selected" : null)">Open</option>
-                        <option value="In Progress" selected="@(ViewBag.StatusFilter == "In Progress" ? "selected" : null)">In Progress</option>
-                        <option value="Closed" selected="@(ViewBag.StatusFilter == "Closed" ? "selected" : null)">Closed</option>
+                        @foreach (var status in Enum.GetValues(typeof(TicketingSystem_DotNetMVC.Models.TicketStatus)))
+                        {
+                            <option value="@status" selected="@(ViewBag.StatusFilter == status.ToString() ? "selected" : null)">@status</option>
+                        }
                     </select>
                 </div>
 
@@ -42,9 +43,10 @@
                     <label class="form-label fw-bold">Priority</label>
                     <select name="priorityFilter" class="form-select form-select-lg">
                         <option value="">All Priorities</option>
-                        <option value="Low" selected="@(ViewBag.PriorityFilter == "Low" ? "selected" : null)">Low</option>
-                        <option value="Medium" selected="@(ViewBag.PriorityFilter == "Medium" ? "selected" : null)">Medium</option>
-                        <option value="High" selected="@(ViewBag.PriorityFilter == "High" ? "selected" : null)">High</option>
+                        @foreach (var priority in Enum.GetValues(typeof(TicketingSystem_DotNetMVC.Models.TicketPriority)))
+                        {
+                            <option value="@priority" selected="@(ViewBag.PriorityFilter == priority.ToString() ? "selected" : null)">@priority</option>
+                        }
                     </select>
                 </div>
 
@@ -99,24 +101,24 @@
                                             </td>
                                             <td>
                                                 @{
-                                                    var priorityBadgeClass = ticket.Priority == "High" ? "danger" :
-                                                                          ticket.Priority == "Medium" ? "warning" :
+                                                    var priorityBadgeClass = ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High ? "danger" :
+                                                                          ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.Medium ? "warning" :
                                                                           "info";
                                                 }
                                                 <span class="badge bg-@priorityBadgeClass">
-                                                    @if(ticket.Priority == "High") { <i class="fas fa-arrow-up"></i> }
-                                                    else if(ticket.Priority == "Medium") { <i class="fas fa-minus"></i> }
+                                                    @if(ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High) { <i class="fas fa-arrow-up"></i> }
+                                                    else if(ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.Medium) { <i class="fas fa-minus"></i> }
                                                     else { <i class="fas fa-arrow-down"></i> }
                                                     @ticket.Priority
                                                 </span>
                                             </td>
                                             <td>
                                                 @{
-                                                    var statusBadgeClass = ticket.Status == "Open" ? "primary" :
-                                                                         ticket.Status == "In Progress" ? "warning" :
+                                                    var statusBadgeClass = ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "primary" :
+                                                                         ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress ? "warning" :
                                                                          "success";
-                                                    var statusIcon = ticket.Status == "Open" ? "hourglass-start" :
-                                                                   ticket.Status == "In Progress" ? "spinner" :
+                                                    var statusIcon = ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "hourglass-start" :
+                                                                   ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress ? "spinner" :
                                                                    "check-circle";
                                                 }
                                                 <span class="badge bg-@statusBadgeClass">

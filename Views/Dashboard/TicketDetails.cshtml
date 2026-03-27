@@ -37,8 +37,8 @@
                     <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Ticket Details</h5>
                     <div>
                         @{
-                            var statusBadgeClass = Model.Status == "Open" ? "primary" :
-                                                 Model.Status == "In Progress" ? "warning" :
+                            var statusBadgeClass = Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "primary" :
+                                                 Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress ? "warning" :
                                                  "success";
                         }
                         <span class="badge bg-@statusBadgeClass">@Model.Status</span>
@@ -51,8 +51,8 @@
                         <div class="col-md-6">
                             <p class="text-muted small mb-1"><i class="fas fa-flag"></i> Priority</p>
                             @{
-                                var priorityClass = Model.Priority == "High" ? "danger" :
-                                                   Model.Priority == "Medium" ? "warning" :
+                                var priorityClass = Model.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High ? "danger" :
+                                                   Model.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.Medium ? "warning" :
                                                    "info";
                             }
                             <p class="fw-bold">
@@ -70,7 +70,7 @@
                             <p class="text-muted small mb-1"><i class="fas fa-sync"></i> Last Updated</p>
                             <p class="fw-bold">@(Model.UpdatedDate?.ToString("dd MMM yyyy, hh:mm tt") ?? "Not updated yet")</p>
                         </div>
-                        @if(Model.Status == "Closed")
+                        @if(Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Closed)
                         {
                             <div class="col-md-6">
                                 <p class="text-muted small mb-1"><i class="fas fa-check"></i> Closed Date</p>
@@ -175,8 +175,8 @@
                 <div class="card-body p-4">
                     @{
                         var assignedReached = Model.AssignedAgentId.HasValue;
-                        var updatedReached = Model.UpdatedDate.HasValue || Model.Status == "In Progress" || Model.Status == "Closed";
-                        var closedReached = Model.ClosedDate.HasValue || Model.Status == "Closed";
+                        var updatedReached = Model.UpdatedDate.HasValue || Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress || Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Closed;
+                        var closedReached = Model.ClosedDate.HasValue || Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Closed;
                     }
 
                     <div class="ticket-line-graph mb-4">
@@ -272,8 +272,8 @@
                     <div class="mb-4">
                         <p class="text-muted small mb-1">Status</p>
                         @{
-                            var statusClass = Model.Status == "Open" ? "danger" :
-                                           Model.Status == "In Progress" ? "warning" :
+                            var statusClass = Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "danger" :
+                                           Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress ? "warning" :
                                            "success";
                         }
                         <p class="fw-bold">
@@ -284,14 +284,14 @@
                     <div class="mb-4">
                         <p class="text-muted small mb-1">Priority Level</p>
                         @{
-                            var priorityBg = Model.Priority == "High" ? "danger" :
-                                           Model.Priority == "Medium" ? "warning" :
+                            var priorityBg = Model.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High ? "danger" :
+                                           Model.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.Medium ? "warning" :
                                            "info";
                         }
                         <p class="fw-bold">
                             <span class="badge bg-@priorityBg">
-                                @if(Model.Priority == "High") { <i class="fas fa-arrow-up"></i> }
-                                else if(Model.Priority == "Medium") { <i class="fas fa-minus"></i> }
+                                @if(Model.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High) { <i class="fas fa-arrow-up"></i> }
+                                else if(Model.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.Medium) { <i class="fas fa-minus"></i> }
                                 else { <i class="fas fa-arrow-down"></i> }
                                 @Model.Priority
                             </span>
@@ -316,7 +316,7 @@
                 </div>
             </div>
 
-            @if(Model.Status == "Closed" && Model.Rating == 0)
+            @if(Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Closed && Model.Rating == 0)
             {
                 <div class="card border-top border-success">
                     <div class="card-header bg-success bg-opacity-10">
@@ -352,7 +352,7 @@
                     </div>
                 </div>
             }
-            else if(Model.Status == "Closed" && Model.Rating > 0)
+            else if(Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Closed && Model.Rating > 0)
             {
                 <div class="card border-top border-success">
                     <div class="card-header bg-success bg-opacity-10">

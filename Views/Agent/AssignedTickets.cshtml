@@ -1,3 +1,4 @@
+@model IEnumerable<TicketingSystem_DotNetMVC.Models.Ticket>
 @{
     ViewData["Title"] = "Assigned Tickets";
 }
@@ -9,32 +10,33 @@
 
 <div class="card mb-3">
     <div class="card-body">
-        <div class="row g-3 align-items-end">
+        <form method="get" class="row g-3 align-items-end">
             <div class="col-md-5">
                 <label class="form-label">Search Tickets</label>
-                <input class="form-control" placeholder="Search by title or ID" />
+                <input name="searchQuery" class="form-control" placeholder="Search by title or ID" value="@ViewBag.SearchQuery" />
             </div>
             <div class="col-md-3">
                 <label class="form-label">Status</label>
-                <select class="form-select">
-                    <option>All</option>
-                    <option>Open</option>
-                    <option>In Progress</option>
-                    <option>Closed</option>
+                <select name="statusFilter" class="form-select">
+                    <option value="">All</option>
+                    @foreach (var status in Enum.GetValues(typeof(TicketingSystem_DotNetMVC.Models.TicketStatus)))
+                    {
+                        <option value="@status" selected="@(ViewBag.StatusFilter == status.ToString() ? "selected" : null)">@status</option>
+                    }
                 </select>
             </div>
             <div class="col-md-4 d-flex gap-2">
-                <button class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i>Apply</button>
-                <button class="btn btn-outline-secondary w-100"><i class="fas fa-rotate-left me-1"></i>Reset</button>
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i>Apply</button>
+                <a href="/Agent/AssignedTickets" class="btn btn-outline-secondary w-100"><i class="fas fa-rotate-left me-1"></i>Reset</a>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-list-check text-primary me-2"></i>Tickets Queue</h5>
-        <span class="badge bg-secondary">1 Assigned</span>
+        <span class="badge bg-secondary">@Model.Count() Assigned</span>
     </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle">
@@ -42,27 +44,24 @@
                 <tr>
                     <th>Ticket ID</th>
                     <th>Title</th>
+                    <th>User</th>
                     <th>Priority</th>
                     <th>Status</th>
-                    <th>Update Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>#AG-201</td>
-                    <td>Scanner configuration</td>
-                    <td><span class="badge bg-info text-dark">Low</span></td>
-                    <td><span class="badge status-open">Open</span></td>
-                    <td>
-                        <select class="form-select form-select-sm">
-                            <option>Open</option>
-                            <option selected>In Progress</option>
-                            <option>Closed</option>
-                        </select>
-                    </td>
-                    <td><a href="/Agent/TicketDetails" class="btn btn-sm btn-outline-primary">View</a></td>
-                </tr>
+                @foreach (var ticket in Model)
+                {
+                    <tr>
+                        <td>#@ticket.TicketId</td>
+                        <td>@ticket.Title</td>
+                        <td>@ticket.User?.FullName</td>
+                        <td><span class="badge @(ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High ? "bg-danger" : "bg-info")">@ticket.Priority</span></td>
+                        <td><span class="badge bg-primary">@ticket.Status</span></td>
+                        <td><a href="/Agent/TicketDetails/@ticket.TicketId" class="btn btn-sm btn-outline-primary">View</a></td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>

@@ -21,9 +21,11 @@
                 <div class="col-md-8 col-lg-9">
                     <label class="form-label fw-semibold">Select Ticket Token</label>
                     <select name="ticketId" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Select a Ticket --</option>
                         @foreach (var ticket in tickets)
                         {
-                            <option value="@ticket.TicketId" selected="@(Model != null && Model.TicketId == ticket.TicketId ? "selected" : null)">
+                            bool isSelected = (Model != null && Model.TicketId == ticket.TicketId);
+                            <option value="@ticket.TicketId" selected="@(isSelected ? "selected" : null)">
                                 #@ticket.TicketId - @ticket.Title
                             </option>
                         }
@@ -34,8 +36,8 @@
                         <small class="text-muted d-block">Current Status</small>
                         @if (Model != null)
                         {
-                            var statusClass = Model.Status == "Open" ? "primary" :
-                                              Model.Status == "In Progress" ? "warning" :
+                            var statusClass = Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "primary" :
+                                              Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress ? "warning" :
                                               "success";
                             <span class="badge bg-@statusClass mt-1">@Model.Status</span>
                         }
@@ -61,8 +63,8 @@
     else
     {
         var assignedReached = Model.AssignedAgentId.HasValue;
-        var updatedReached = Model.UpdatedDate.HasValue || Model.Status == "In Progress" || Model.Status == "Closed";
-        var closedReached = Model.ClosedDate.HasValue || Model.Status == "Closed";
+        var updatedReached = Model.UpdatedDate.HasValue || Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress || Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Closed;
+        var closedReached = Model.ClosedDate.HasValue || Model.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Closed;
 
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">

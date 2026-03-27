@@ -1,0 +1,54 @@
+@model IEnumerable<TicketingSystem_DotNetMVC.Models.Comment>
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h1 class="page-title"><i class="fas fa-bell text-primary me-2"></i>Notifications</h1>
+        <p class="page-subtitle">Recent activities and updates from users and admins.</p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5 text-center text-muted">
+                <div class="mb-4 text-primary opacity-25">
+                    <i class="fas fa-bell-slash fa-5x"></i>
+                </div>
+                <h4 class="fw-bold">No notifications yet.</h4>
+                <p>Stay tuned for updates on your assigned tickets.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="list-group list-group-flush border-0 shadow-sm rounded-3">
+            @foreach (var notification in Model)
+            {
+                <a href="@Url.Action("TicketDetails", "Agent", new { id = notification.TicketId })" class="list-group-item list-group-item-action p-4 border-0 mb-2 rounded-3 shadow-sm bg-white">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle me-4">
+                            <i class="fas fa-comment-dots fa-lg"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0 fw-bold">New Comment on Ticket #@notification.TicketId</h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i>@notification.CreatedDate.ToString("dd MMM, hh:mm tt")</small>
+                            </div>
+                            <div class="text-dark small mb-1">
+                                <strong>@notification.User.FullName</strong> commented on <em>"@notification.Ticket.Title"</em>
+                            </div>
+                            <div class="text-muted small text-truncate" style="max-width: 500px;">
+                                @notification.Message
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <i class="fas fa-chevron-right text-muted small"></i>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

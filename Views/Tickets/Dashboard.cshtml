@@ -52,7 +52,7 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="ps-3 fw-bold">#@item.Id</td>
+                            <td class="ps-3 fw-bold">#@item.TicketId</td>
                             <td>@item.Title</td>
                             <td>
                                 <span class="badge badge-@item.Priority.ToString().ToLower()">@item.Priority</span>
@@ -62,7 +62,7 @@
                             </td>
                             <td>@item.CreatedDate.ToString("MMM dd, yyyy HH:mm")</td>
                             <td class="text-end pe-3">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light text-primary">
+                                <a asp-action="Details" asp-route-id="@item.TicketId" class="btn btn-sm btn-light text-primary">
                                     <i class="fas fa-eye"></i> View
                                 </a>
                             </td>

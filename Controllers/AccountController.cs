@@ -29,7 +29,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("FullName,Email,Password")] RegisterViewModel model)
+        public async Task<IActionResult> Register([Bind("FullName,Email,Password,ConfirmPassword")] RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -51,8 +51,14 @@ namespace TicketingSystem_DotNetMVC.Controllers
                 _context.Add(user);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = "Registration successful! Please login.";
-                return RedirectToAction(nameof(Login));
+                // Auto-login after registration
+                HttpContext.Session.SetString("UserId", user.UserId.ToString());
+                HttpContext.Session.SetString("UserName", user.FullName);
+                HttpContext.Session.SetString("UserEmail", user.Email);
+                HttpContext.Session.SetString("UserRole", user.Role);
+
+                TempData["Success"] = "Registration successful! Welcome to your dashboard.";
+                return RedirectToAction("Dashboard", "Dashboard");
             }
             return View(model);
         }

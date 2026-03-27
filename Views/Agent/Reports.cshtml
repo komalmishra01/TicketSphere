@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Agent Reports";
+}
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h1 class="page-title"><i class="fas fa-chart-pie text-primary me-2"></i>Service Reports</h1>
+        <p class="page-subtitle">Detailed breakdown of your performance and ticket statistics.</p>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-bold text-uppercase">Total Assigned</div>
+                            <div class="h2 mb-0 mt-1">@ViewBag.Total</div>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3">
+                            <i class="fas fa-ticket-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-bold text-uppercase">Open</div>
+                            <div class="h2 mb-0 mt-1">@ViewBag.Open</div>
+                        </div>
+                        <div class="bg-info bg-opacity-10 text-info p-3 rounded-3">
+                            <i class="fas fa-envelope-open fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-bold text-uppercase">In Progress</div>
+                            <div class="h2 mb-0 mt-1">@ViewBag.InProgress</div>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3">
+                            <i class="fas fa-spinner fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-bold text-uppercase">Resolved</div>
+                            <div class="h2 mb-0 mt-1">@ViewBag.Closed</div>
+                        </div>
+                        <div class="bg-success bg-opacity-10 text-success p-3 rounded-3">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">Performance Overview</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="mb-4">
+                        <label class="d-flex justify-content-between mb-1">
+                            <span>Resolution Rate</span>
+                            <span class="fw-bold">@(ViewBag.Total > 0 ? (ViewBag.Closed * 100 / ViewBag.Total) : 0)%</span>
+                        </label>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @(ViewBag.Total > 0 ? (ViewBag.Closed * 100 / ViewBag.Total) : 0)%" aria-valuenow="@(ViewBag.Total > 0 ? (ViewBag.Closed * 100 / ViewBag.Total) : 0)" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="d-flex justify-content-between mb-1">
+                            <span>In Progress Rate</span>
+                            <span class="fw-bold">@(ViewBag.Total > 0 ? (ViewBag.InProgress * 100 / ViewBag.Total) : 0)%</span>
+                        </label>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: @(ViewBag.Total > 0 ? (ViewBag.InProgress * 100 / ViewBag.Total) : 0)%" aria-valuenow="@(ViewBag.Total > 0 ? (ViewBag.InProgress * 100 / ViewBag.Total) : 0)" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="p-4 border rounded-3 bg-light">
+                        <h4 class="mb-3">Weekly Productivity</h4>
+                        <p class="text-muted">You have resolved @ViewBag.Closed tickets so far. Keep up the great work!</p>
+                        <button class="btn btn-primary">Generate PDF Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

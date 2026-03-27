@@ -1,3 +1,4 @@
+@model IEnumerable<TicketingSystem_DotNetMVC.Models.User>
 @{
     ViewData["Title"] = "Manage Users";
 }
@@ -15,28 +16,24 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Created Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Riya Kapoor</td>
-                    <td>riya@company.com</td>
-                    <td><span class="badge bg-light text-dark border">User</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary">Edit</button>
-                        <button class="btn btn-sm btn-outline-danger">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Rahul Jain</td>
-                    <td>rahul@company.com</td>
-                    <td><span class="badge bg-light text-dark border">User</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary">Edit</button>
-                        <button class="btn btn-sm btn-outline-danger">Delete</button>
-                    </td>
-                </tr>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td><span class="badge bg-light text-dark border">@user.Role</span></td>
+                        <td>@user.CreatedDate.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>

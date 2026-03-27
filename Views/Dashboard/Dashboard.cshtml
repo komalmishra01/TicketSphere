@@ -1,90 +1,86 @@
+@model IEnumerable<TicketingSystem_DotNetMVC.Models.Ticket>
 @{
-    ViewData["Title"] = "Dashboard - TicketSphere";
+    ViewData["Title"] = "User Dashboard";
 }
 
 <div class="container-fluid">
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="page-title"><i class="fas fa-gauge-high text-primary me-2"></i>Dashboard</h1>
-            <p class="page-subtitle">Welcome back! Here's an overview of your tickets and service requests.</p>
+            <h1 class="page-title"><i class="fas fa-home text-primary me-2"></i>Welcome, @Context.Session.GetString("UserName")!</h1>
+            <p class="page-subtitle">Here is a quick overview of your support activity.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="@Url.Action("CreateTicket", "Dashboard")" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Create New Ticket
-            </a>
-            <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-outline-primary">
-                <i class="fas fa-list me-2"></i>View All Tickets
+            <a href="@Url.Action("CreateTicket", "Dashboard")" class="btn btn-primary px-4 py-2 rounded-3 shadow-sm">
+                <i class="fas fa-plus-circle me-2"></i>New Ticket
             </a>
         </div>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 summary-card">
-                <div class="card-body p-0">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="summary-label">Total Tickets</p>
-                            <h2 class="summary-value text-primary">@ViewBag.TotalTickets</h2>
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-4 me-3">
+                            <i class="fas fa-ticket-alt fa-2x"></i>
                         </div>
-                        <div class="summary-icon" style="background:#e0e7ff;color:#4338ca;">
-                            <i class="fas fa-ticket-alt"></i>
+                        <div>
+                            <div class="text-muted small fw-bold">Total Tickets</div>
+                            <div class="h2 mb-0 fw-bold">@ViewBag.TotalTickets</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 summary-card">
-                <div class="card-body p-0">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="summary-label">Open Tickets</p>
-                            <h2 class="summary-value" style="color:#1d4ed8;">@ViewBag.Open</h2>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-4 me-3">
+                            <i class="fas fa-hourglass-half fa-2x"></i>
                         </div>
-                        <div class="summary-icon" style="background:#dbeafe;color:#1d4ed8;">
-                            <i class="fas fa-hourglass-start"></i>
+                        <div>
+                            <div class="text-muted small fw-bold">Open</div>
+                            <div class="h2 mb-0 fw-bold">@ViewBag.Open</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 summary-card">
-                <div class="card-body p-0">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="summary-label">In Progress</p>
-                            <h2 class="summary-value" style="color:#b45309;">@ViewBag.InProgress</h2>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-info bg-opacity-10 text-info p-3 rounded-4 me-3">
+                            <i class="fas fa-sync fa-2x"></i>
                         </div>
-                        <div class="summary-icon" style="background:#fef3c7;color:#b45309;">
-                            <i class="fas fa-spinner"></i>
+                        <div>
+                            <div class="text-muted small fw-bold">In Progress</div>
+                            <div class="h2 mb-0 fw-bold">@ViewBag.InProgress</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card h-100 summary-card">
-                <div class="card-body p-0">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="summary-label">Closed Tickets</p>
-                            <h2 class="summary-value" style="color:#15803d;">@ViewBag.Closed</h2>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 text-success p-3 rounded-4 me-3">
+                            <i class="fas fa-check-circle fa-2x"></i>
                         </div>
-                        <div class="summary-icon" style="background:#dcfce7;color:#15803d;">
-                            <i class="fas fa-check-circle"></i>
+                        <div>
+                            <div class="text-muted small fw-bold">Closed</div>
+                            <div class="h2 mb-0 fw-bold">@ViewBag.Closed</div>
                         </div>
                     </div>
                 </div>
@@ -92,118 +88,112 @@
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-xl-8 mb-3 mb-xl-0">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-chart-column text-primary me-2"></i>Ticket Overview</h5>
-                    <span class="badge bg-secondary">Live Snapshot</span>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center g-3">
-                        <div class="col-6 col-md-3">
-                            <div class="small text-muted">Total</div>
-                            <div class="h4 mb-0">@ViewBag.TotalTickets</div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="small text-muted">Open</div>
-                            <div class="h4 mb-0" style="color:#1d4ed8;">@ViewBag.Open</div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="small text-muted">In Progress</div>
-                            <div class="h4 mb-0" style="color:#b45309;">@ViewBag.InProgress</div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="small text-muted">Closed</div>
-                            <div class="h4 mb-0" style="color:#15803d;">@ViewBag.Closed</div>
-                        </div>
+    <div class="row g-4">
+        <!-- Recent Tickets Table -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-4 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Recent Tickets</h5>
+                        <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-sm btn-link text-decoration-none fw-bold">View All</a>
                     </div>
                 </div>
-            </a>
-        </div>
-        <div class="col-xl-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-bolt text-primary me-2"></i>Quick Actions</h5>
-                </div>
-                <div class="card-body d-grid gap-2">
-                    <a href="@Url.Action("CreateTicket", "Dashboard")" class="btn btn-primary">
-                        <i class="fas fa-plus-circle me-2"></i>Create New Ticket
-                    </a>
-                    <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-outline-primary">
-                        <i class="fas fa-list me-2"></i>Manage Existing Tickets
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-history text-primary me-2"></i>Recent Tickets
-                    </h5>
-                    <a href="@Url.Action("MyTickets", "Dashboard")" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
                 <div class="card-body p-0">
-                    @if((ViewBag.RecentTickets as List<TicketingSystem_DotNetMVC.Models.Ticket>)?.Count > 0)
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Ticket ID</th>
-                                        <th>Title</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(var ticket in ViewBag.RecentTickets)
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-muted small">
+                                <tr>
+                                    <th class="ps-4 border-0">ID</th>
+                                    <th class="border-0">Title</th>
+                                    <th class="border-0">Priority</th>
+                                    <th class="border-0">Status</th>
+                                    <th class="border-0">Date</th>
+                                    <th class="text-end pe-4 border-0">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Any())
+                                {
+                                    @foreach (var ticket in Model)
                                     {
                                         <tr>
-                                            <td><strong>#@ticket.TicketId</strong></td>
-                                            <td>@ticket.Title</td>
+                                            <td class="ps-4">#@ticket.TicketId</td>
+                                            <td><span class="fw-semibold">@ticket.Title</span></td>
                                             <td>
                                                 @{
-                                                    var priorityBadgeClass = ticket.Priority == "High" ? "danger" :
-                                                                          ticket.Priority == "Medium" ? "warning" :
-                                                                          "info";
+                                                    var priorityClass = ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High ? "danger" :
+                                                                       ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.Medium ? "warning" : "info";
                                                 }
-                                                <span class="badge bg-@priorityBadgeClass">@ticket.Priority</span>
+                                                <span class="badge bg-@priorityClass bg-opacity-10 text-@priorityClass px-2">@ticket.Priority</span>
                                             </td>
                                             <td>
                                                 @{
-                                                    var statusBadgeClass = ticket.Status == "Open" ? "primary" :
-                                                                         ticket.Status == "In Progress" ? "warning" :
-                                                                         "success";
+                                                    var statusClass = ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "primary" :
+                                                                     ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress ? "warning" : "success";
                                                 }
-                                                <span class="badge bg-@statusBadgeClass">@ticket.Status</span>
+                                                <span class="badge bg-@statusClass bg-opacity-10 text-@statusClass px-2">@ticket.Status</span>
                                             </td>
-                                            <td>@ticket.CreatedDate.ToString("dd MMM yyyy")</td>
-                                            <td>
-                                                <a href="@Url.Action("TicketDetails", "Dashboard", new { id = ticket.TicketId })" 
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i> View
+                                            <td class="small text-muted">@ticket.CreatedDate.ToString("MMM dd")</td>
+                                            <td class="text-end pe-4">
+                                                <a href="@Url.Action("TicketDetails", "Dashboard", new { id = ticket.TicketId })" class="btn btn-sm btn-light rounded-circle p-2">
+                                                    <i class="fas fa-eye text-primary"></i>
                                                 </a>
                                             </td>
                                         </tr>
                                     }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info m-4" role="alert">
-                            <i class="fas fa-info-circle"></i> No tickets yet. 
-                            <a href="@Url.Action("CreateTicket", "Dashboard")">Create your first ticket</a>
-                        </div>
-                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5 text-muted">
+                                            <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                                            <p>No recent tickets found.</p>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links / Help -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-4 px-4">
+                    <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                </div>
+                <div class="card-body p-4 pt-0">
+                    <div class="d-grid gap-3">
+                        <a href="/Dashboard/TicketTimeline" class="btn btn-outline-primary text-start p-3 rounded-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-chart-line fa-lg me-3"></i>
+                                <div>
+                                    <div class="fw-bold">Track Status</div>
+                                    <div class="small opacity-75">View ticket progress timeline</div>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/Dashboard/Notifications" class="btn btn-outline-secondary text-start p-3 rounded-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-bell fa-lg me-3"></i>
+                                <div>
+                                    <div class="fw-bold">Updates</div>
+                                    <div class="small opacity-75">Check latest notifications</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 bg-primary text-white shadow-sm rounded-4">
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-headset fa-3x mb-3"></i>
+                    <h5 class="fw-bold">Need Help?</h5>
+                    <p class="small mb-4 opacity-75">Our support team is here for you 24/7. Create a ticket if you encounter any issues.</p>
+                    <a href="/Dashboard/CreateTicket" class="btn btn-light w-100 fw-bold text-primary">Get Support</a>
                 </div>
             </div>
         </div>

@@ -40,17 +40,14 @@ namespace TicketingSystem_DotNetMVC.Controllers
             var user = await _context.Users.FindAsync(userId);
             var tickets = await _context.Tickets.Where(t => t.UserId == userId).ToListAsync();
 
-            var dashboardStats = new
-            {
-                TotalTickets = tickets.Count,
-                Open = tickets.Count(t => t.Status == "Open"),
-                InProgress = tickets.Count(t => t.Status == "In Progress"),
-                Closed = tickets.Count(t => t.Status == "Closed"),
-                User = user,
-                RecentTickets = tickets.OrderByDescending(t => t.CreatedDate).Take(5).ToList()
-            };
+            ViewBag.TotalTickets = tickets.Count;
+            ViewBag.Open = tickets.Count(t => t.Status == TicketStatus.Open);
+            ViewBag.InProgress = tickets.Count(t => t.Status == TicketStatus.InProgress);
+            ViewBag.Closed = tickets.Count(t => t.Status == TicketStatus.Closed);
+            
+            var recentTickets = tickets.OrderByDescending(t => t.CreatedDate).Take(5).ToList();
 
-            return View(dashboardStats);
+            return View(recentTickets);
         }
 
         // GET: Dashboard/CreateTicket
@@ -79,13 +76,13 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (ModelState.IsValid)
             {
                 ticket.UserId = userId.Value;
-                ticket.Status = "Open";
+                ticket.Status = TicketStatus.Open;
                 ticket.CreatedDate = DateTime.Now;
 
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = $"Ticket #{ticket.TicketId} created successfully!";
+                TempData["Success"] = "your ticket is submitted";
                 return RedirectToAction(nameof(MyTickets));
             }
             return View(ticket);
@@ -101,21 +98,24 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (!IsUser())
                 return Unauthorized();
 
-            IQueryable<Ticket> query = _context.Tickets
-                .Where(t => t.UserId == userId)
-                .OrderByDescending(t => t.CreatedDate);
+            var query = _context.Tickets.Where(t => t.UserId == userId);
 
-            // Apply filters
-            if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "All")
-                query = query.Where(t => t.Status == statusFilter);
+            if (!string.IsNullOrEmpty(statusFilter) && Enum.TryParse<TicketStatus>(statusFilter, out var status))
+            {
+                query = query.Where(t => t.Status == status);
+            }
 
-            if (!string.IsNullOrEmpty(priorityFilter) && priorityFilter != "All")
-                query = query.Where(t => t.Priority == priorityFilter);
+            if (!string.IsNullOrEmpty(priorityFilter) && Enum.TryParse<TicketPriority>(priorityFilter, out var priority))
+            {
+                query = query.Where(t => t.Priority == priority);
+            }
 
             if (!string.IsNullOrEmpty(searchQuery))
+            {
                 query = query.Where(t => t.Title.Contains(searchQuery) || t.Description.Contains(searchQuery));
+            }
 
-            var tickets = await query.ToListAsync();
+            var tickets = await query.OrderByDescending(t => t.CreatedDate).ToListAsync();
 
             ViewBag.StatusFilter = statusFilter;
             ViewBag.PriorityFilter = priorityFilter;
@@ -261,7 +261,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (ticket.UserId != userId)
                 return Unauthorized();
 
-            if (ticket.Status != "Closed")
+            if (ticket.Status != TicketStatus.Closed)
             {
                 TempData["Error"] = "You can only rate closed tickets.";
                 return RedirectToAction(nameof(TicketDetails), new { id = ticketId });

@@ -1,3 +1,4 @@
+@model IEnumerable<TicketingSystem_DotNetMVC.Models.Ticket>
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
@@ -7,20 +8,53 @@
     <p class="text-secondary mb-0">Overview of tickets, users, and agents.</p>
 </div>
 
-<div class="row g-3">
+<div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl">
-        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Total Tickets</div><h4 class="mb-0">124</h4></div></div>
+        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Total Tickets</div><h4 class="mb-0">@ViewBag.TotalTickets</h4></div></div>
     </div>
     <div class="col-sm-6 col-xl">
-        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Open</div><h4 class="mb-0">35</h4></div></div>
+        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Open</div><h4 class="mb-0">@ViewBag.OpenTickets</h4></div></div>
     </div>
     <div class="col-sm-6 col-xl">
-        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Closed</div><h4 class="mb-0">89</h4></div></div>
+        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Closed</div><h4 class="mb-0">@ViewBag.ClosedTickets</h4></div></div>
     </div>
     <div class="col-sm-6 col-xl">
-        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Users</div><h4 class="mb-0">48</h4></div></div>
+        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Users</div><h4 class="mb-0">@ViewBag.TotalUsers</h4></div></div>
     </div>
     <div class="col-sm-6 col-xl">
-        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Agents</div><h4 class="mb-0">9</h4></div></div>
+        <div class="card summary-card"><div class="card-body p-0"><div class="small text-secondary">Agents</div><h4 class="mb-0">@ViewBag.TotalAgents</h4></div></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Recent Tickets</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model)
+                    {
+                        <tr>
+                            <td>#@ticket.TicketId</td>
+                            <td>@ticket.Title</td>
+                            <td>@ticket.User?.FullName</td>
+                            <td><span class="badge @(ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "bg-primary" : "bg-success")">@ticket.Status</span></td>
+                            <td>@ticket.CreatedDate.ToString("MMM dd, yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

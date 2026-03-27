@@ -35,15 +35,9 @@
                             <label asp-for="Priority" class="form-label fw-bold">Priority Level</label>
                             <select asp-for="Priority" class="form-select form-select-lg" required>
                                 <option value="">-- Select Priority --</option>
-                                <option value="Low">
-                                    <i class="fas fa-arrow-down"></i> Low - Can wait
-                                </option>
-                                <option value="Medium">
-                                    <i class="fas fa-minus"></i> Medium - Normal
-                                </option>
-                                <option value="High">
-                                    <i class="fas fa-arrow-up"></i> High - Urgent
-                                </option>
+                                <option value="Low">Low - Can wait</option>
+                                <option value="Medium">Medium - Normal</option>
+                                <option value="High">High - Urgent</option>
                             </select>
                             <span asp-validation-for="Priority" class="text-danger small"></span>
                             <small class="text-muted d-block mt-2">Helps us prioritize your request</small>
