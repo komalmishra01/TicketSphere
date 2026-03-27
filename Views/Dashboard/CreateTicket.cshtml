@@ -15,7 +15,16 @@
         <div class="col-lg-9 col-xl-8">
             <div class="card mb-4">
                 <div class="card-body p-5">
-                    <form method="post" asp-action="CreateTicket" asp-controller="Dashboard">
+                    <form method="post" asp-action="CreateTicket" asp-controller="Dashboard" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Upload Screenshot (Optional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-image text-primary"></i></span>
+                                <input type="file" name="attachment" class="form-control" accept="image/*">
+                            </div>
+                            <small class="text-muted d-block mt-2">Upload an image showing the issue (Max 5MB)</small>
+                        </div>
+
                         <div class="mb-4">
                             <label asp-for="Title" class="form-label fw-bold">Ticket Title</label>
                             <input asp-for="Title" type="text" class="form-control form-control-lg" placeholder="Brief title of the issue" required>

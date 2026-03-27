@@ -43,10 +43,12 @@ namespace TicketingSystem_DotNetMVC.Models
 
         [ForeignKey("User")]
         public int UserId { get; set; }
+        [Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidateNever]
         public User User { get; set; } = null!;
 
         public int? AssignedAgentId { get; set; }
         [ForeignKey("AssignedAgentId")]
+        [Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidateNever]
         public User? AssignedAgent { get; set; }
 
         public double Rating { get; set; } = 0;

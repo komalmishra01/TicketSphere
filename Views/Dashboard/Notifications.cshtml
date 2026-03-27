@@ -14,43 +14,83 @@
         </a>
     </div>
 
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="fas fa-envelope-open-text me-2"></i>Latest Updates</h5>
-            <span class="badge bg-secondary">@Model.Count</span>
-        </div>
-        <div class="card-body p-0">
-            @if (Model.Any())
-            {
-                <div class="list-group list-group-flush">
-                    @foreach (var item in Model)
+    <div class="row g-4">
+        <!-- System Notifications (Announcements) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-bullhorn text-warning me-2"></i>System Announcements</h5>
+                </div>
+                <div class="card-body p-0">
+                    @{
+                        var systemNotifs = ViewBag.SystemNotifications as List<TicketingSystem_DotNetMVC.Models.Notification>;
+                    }
+                    @if (systemNotifs != null && systemNotifs.Any())
                     {
-                        <a href="@Url.Action("TicketDetails", "Dashboard", new { id = item.TicketId })" class="list-group-item list-group-item-action p-3 notification-item">
-                            <div class="d-flex justify-content-between align-items-start gap-3">
-                                <div>
-                                    <div class="fw-semibold mb-1">
-                                        <i class="fas fa-circle-user text-primary me-1"></i>@item.User.FullName
-                                        <span class="badge bg-info ms-2">@item.User.Role</span>
+                        <div class="list-group list-group-flush">
+                            @foreach (var notif in systemNotifs)
+                            {
+                                <div class="list-group-item p-3 border-0 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <h6 class="mb-0 fw-bold text-primary">@notif.Subject</h6>
+                                        <small class="text-muted small">@notif.CreatedDate.ToString("MMM dd")</small>
                                     </div>
-                                    <div class="text-muted mb-1">
-                                        Ticket #@item.TicketId - @item.Ticket.Title
-                                    </div>
-                                    <div style="white-space: pre-wrap;">@item.Message</div>
+                                    <p class="mb-0 small text-secondary" style="white-space: pre-wrap;">@notif.Message</p>
                                 </div>
-                                <small class="text-muted text-nowrap">@item.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")</small>
-                            </div>
-                        </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-muted small">
+                            <i class="fas fa-info-circle mb-2 opacity-50"></i>
+                            <p class="mb-0">No system announcements.</p>
+                        </div>
                     }
                 </div>
-            }
-            else
-            {
-                <div class="p-5 text-center text-muted">
-                    <i class="fas fa-bell-slash fa-2x mb-3"></i>
-                    <div class="fw-semibold mb-1">No notifications yet</div>
-                    <div>Agent and admin ticket updates will appear here.</div>
+            </div>
+        </div>
+
+        <!-- Ticket Notifications (Comments) -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-envelope-open-text text-primary me-2"></i>Ticket Updates</h5>
                 </div>
-            }
+                <div class="card-body p-0">
+                    @if (Model.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var item in Model)
+                            {
+                                <a href="@Url.Action("TicketDetails", "Dashboard", new { id = item.TicketId })" class="list-group-item list-group-item-action p-4 border-0 border-bottom notification-item">
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        <div>
+                                            <div class="fw-bold mb-1">
+                                                <i class="fas fa-circle-user text-primary me-1"></i>@item.User.FullName
+                                                <span class="badge bg-info bg-opacity-10 text-info ms-2 small">@item.User.Role</span>
+                                            </div>
+                                            <div class="text-dark small mb-2">
+                                                <strong>Ticket #@item.TicketId:</strong> @item.Ticket.Title
+                                            </div>
+                                            <div class="text-secondary small" style="white-space: pre-wrap;">@item.Message</div>
+                                        </div>
+                                        <small class="text-muted text-nowrap small">@item.CreatedDate.ToString("dd MMM, hh:mm tt")</small>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center text-muted">
+                            <i class="fas fa-bell-slash fa-3x mb-3 opacity-25"></i>
+                            <div class="fw-bold mb-1 h5">All caught up!</div>
+                            <p class="mb-0 small">No new updates on your tickets.</p>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </div>

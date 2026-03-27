@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using TicketingSystem_DotNetMVC.Data;
 using TicketingSystem_DotNetMVC.Models;
 
@@ -147,15 +148,39 @@ namespace TicketingSystem_DotNetMVC.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ExportReportsCsv()
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (userIdStr == null) return RedirectToAction("Login", "Account");
+            
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Agent") return RedirectToAction("Index", "Home");
+
+            var agentId = int.Parse(userIdStr);
+            var tickets = await _context.Tickets
+                .Include(t => t.User)
+                .Where(t => t.AssignedAgentId == agentId)
+                .ToListAsync();
+
+            var sb = new StringBuilder();
+            sb.AppendLine("TicketId,Title,User,Status,Priority,CreatedDate");
+            foreach (var t in tickets)
+            {
+                sb.AppendLine($"{t.TicketId},{t.Title.Replace(",", " ")},{t.User?.FullName.Replace(",", " ")},{t.Status},{t.Priority},{t.CreatedDate:yyyy-MM-dd HH:mm}");
+            }
+
+            var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/csv", "Agent_Performance_Report.csv");
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Reports()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
-            if (userIdStr == null)
-                return RedirectToAction("Login", "Account");
+            if (userIdStr == null) return RedirectToAction("Login", "Account");
 
             var userRole = HttpContext.Session.GetString("UserRole");
-            if (userRole != "Agent")
-                return Unauthorized();
+            if (userRole != "Agent") return RedirectToAction("Index", "Home");
 
             var agentId = int.Parse(userIdStr);
 
@@ -175,17 +200,21 @@ namespace TicketingSystem_DotNetMVC.Controllers
         public async Task<IActionResult> Notifications()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
-            if (userIdStr == null)
-                return RedirectToAction("Login", "Account");
+            if (userIdStr == null) return RedirectToAction("Login", "Account");
 
             var userRole = HttpContext.Session.GetString("UserRole");
-            if (userRole != "Agent")
-                return Unauthorized();
+            if (userRole != "Agent") return RedirectToAction("Index", "Home");
 
             var agentId = int.Parse(userIdStr);
 
-            // Fetch notifications (for simplicity, comments on tickets assigned to the agent where the comment isn't by the agent)
-            var notifications = await _context.Comments
+            // Fetch system notifications
+            var systemNotifications = await _context.Notifications
+                .Where(n => n.TargetRole == "All" || n.TargetRole == "Agent" || n.UserId == agentId)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
+
+            // Fetch ticket comments as notifications
+            var ticketComments = await _context.Comments
                 .Include(c => c.User)
                 .Include(c => c.Ticket)
                 .Where(c => c.Ticket.AssignedAgentId == agentId && c.UserId != agentId)
@@ -193,7 +222,8 @@ namespace TicketingSystem_DotNetMVC.Controllers
                 .Take(20)
                 .ToListAsync();
 
-            return View(notifications);
+            ViewBag.SystemNotifications = systemNotifications;
+            return View(ticketComments);
         }
     }
 }

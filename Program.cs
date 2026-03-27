@@ -1,5 +1,6 @@
 using TicketingSystem_DotNetMVC.Data;
 using TicketingSystem_DotNetMVC.Models;
+using TicketingSystem_DotNetMVC.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add session
 builder.Services.AddSession(options =>
@@ -29,6 +31,18 @@ try
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         // Try to apply pending migrations
         db.Database.Migrate();
+
+        // Manually ensure Notifications table exists if migrations are failing
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS Notifications (
+                NotificationId INTEGER PRIMARY KEY AUTOINCREMENT,
+                UserId INTEGER NULL,
+                TargetRole TEXT NULL,
+                Subject TEXT NOT NULL,
+                Message TEXT NOT NULL,
+                CreatedDate TEXT NOT NULL,
+                IsRead INTEGER NOT NULL DEFAULT 0
+            );");
 
         // Ensure default demo accounts exist for each role if configured.
         if (builder.Configuration.GetValue<bool>("SeedDemoData"))

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TicketingSystem_DotNetMVC.Data;
 using TicketingSystem_DotNetMVC.Models;
+using TicketingSystem_DotNetMVC.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace TicketingSystem_DotNetMVC.Controllers
@@ -10,11 +11,13 @@ namespace TicketingSystem_DotNetMVC.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AccountController> _logger;
+        private readonly IEmailService _emailService;
 
-        public AccountController(ApplicationDbContext context, ILogger<AccountController> logger)
+        public AccountController(ApplicationDbContext context, ILogger<AccountController> logger, IEmailService emailService)
         {
             _context = context;
             _logger = logger;
+            _emailService = emailService;
         }
 
         // GET: Account/Register
@@ -172,6 +175,93 @@ namespace TicketingSystem_DotNetMVC.Controllers
             TempData["Success"] = "Profile updated successfully.";
             return RedirectToAction(nameof(Profile));
         }
+
+        // GET: Account/ForgotPassword
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        // POST: Account/ForgotPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError("", "Email is required.");
+                return View();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user != null)
+            {
+                // In a real app, generate a reset token and send a link.
+                // For this project, we'll send a simple simulated notification.
+                string resetLink = Url.Action("ResetPassword", "Account", new { email = email }, Request.Scheme) ?? "";
+                
+                await _emailService.SendEmailAsync(
+                    email, 
+                    "Password Reset Request - TicketSphere", 
+                    $"Hello {user.FullName},\n\nYou requested a password reset. Please click the link below to reset your password:\n\n{resetLink}\n\nIf you didn't request this, please ignore this email.");
+                
+                TempData["Success"] = "A password reset link has been sent to your email (check console/logs).";
+            }
+            else
+            {
+                // For security, don't reveal if the user exists or not.
+                TempData["Success"] = "If that email is in our system, you will receive a reset link shortly.";
+            }
+
+            return View();
+        }
+
+        // GET: Account/ResetPassword (Simplified for demo)
+        [HttpGet]
+        public IActionResult ResetPassword(string email)
+        {
+            return View(new ResetPasswordViewModel { Email = email });
+        }
+
+        // POST: Account/ResetPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+                if (user != null)
+                {
+                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Your password has been reset successfully. You can now login.";
+                    return RedirectToAction(nameof(Login));
+                }
+                return NotFound();
+            }
+            return View(model);
+        }
+    }
+
+    public class ResetPasswordViewModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100, MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [Required]
+        [DataType(DataType.Password)]
+        [Compare("NewPassword")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 
     public class RegisterViewModel

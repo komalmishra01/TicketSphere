@@ -1,82 +1,100 @@
+@model IEnumerable<TicketingSystem_DotNetMVC.Models.Ticket>
 @{
     ViewData["Title"] = "All Tickets";
+    var agents = ViewBag.Agents as List<TicketingSystem_DotNetMVC.Models.User> ?? new List<TicketingSystem_DotNetMVC.Models.User>();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0 page-title">All Tickets</h3>
-    <a href="/Admin/Dashboard" class="btn btn-outline-secondary btn-sm">Back</a>
-</div>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title"><i class="fas fa-list-check text-primary me-2"></i>Global Ticket Management</h1>
+            <p class="page-subtitle">View and assign tickets to support agents.</p>
+        </div>
+        <a href="/Admin/Dashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-6">
-                <label class="form-label">Search Tickets</label>
-                <input class="form-control" placeholder="Search by ID, title, or user" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Status</label>
-                <select class="form-select">
-                    <option>All</option>
-                    <option>Open</option>
-                    <option>In Progress</option>
-                    <option>Closed</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <button class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i>Apply Filters</button>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold">Recent Tickets</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Title</th>
+                            <th>User</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Assign To</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in Model)
+                        {
+                            <tr>
+                                <td class="ps-4"><strong>#@ticket.TicketId</strong></td>
+                                <td>@ticket.Title</td>
+                                <td>@ticket.User?.FullName</td>
+                                <td>
+                                    @{
+                                        var pClass = ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.High ? "danger" :
+                                                    ticket.Priority == TicketingSystem_DotNetMVC.Models.TicketPriority.Medium ? "warning" : "info";
+                                    }
+                                    <span class="badge bg-@pClass bg-opacity-10 text-@pClass">@ticket.Priority</span>
+                                </td>
+                                <td>
+                                    @{
+                                        var sClass = ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.Open ? "primary" :
+                                                    ticket.Status == TicketingSystem_DotNetMVC.Models.TicketStatus.InProgress ? "warning" : "success";
+                                    }
+                                    <span class="badge bg-@sClass bg-opacity-10 text-@sClass">@ticket.Status</span>
+                                </td>
+                                <td>
+                                    <form asp-action="AssignTicket" method="post" class="d-flex gap-2 align-items-center">
+                                        <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                                        <select name="agentId" class="form-select form-select-sm" style="min-width: 150px;">
+                                            <option value="">-- Unassigned --</option>
+                                            @foreach (var agent in agents)
+                                            {
+                                                <option value="@agent.UserId" selected="@(ticket.AssignedAgentId == agent.UserId)">
+                                                    @agent.FullName
+                                                </option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary">Assign</button>
+                                    </form>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="/Tickets/Details/@ticket.TicketId" class="btn btn-sm btn-outline-primary rounded-circle p-2">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-table-list text-primary me-2"></i>Ticket Management</h5>
-        <span class="badge bg-secondary">2 Tickets</span>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle">
-            <thead>
-                <tr>
-                    <th>Ticket ID</th>
-                    <th>Title</th>
-                    <th>User</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Assign Agent</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>#AD-101</td>
-                    <td>Printer issue</td>
-                    <td>Aryan</td>
-                    <td><span class="badge bg-warning text-dark">Medium</span></td>
-                    <td><span class="badge status-open">Open</span></td>
-                    <td>
-                        <select class="form-select form-select-sm">
-                            <option>Select Agent</option>
-                            <option>Agent Alex</option>
-                            <option>Agent Sam</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>#AD-102</td>
-                    <td>Billing portal error</td>
-                    <td>Sneha</td>
-                    <td><span class="badge bg-danger">High</span></td>
-                    <td><span class="badge status-progress">In Progress</span></td>
-                    <td>
-                        <select class="form-select form-select-sm">
-                            <option>Select Agent</option>
-                            <option selected>Agent Sam</option>
-                            <option>Agent Alex</option>
-                        </select>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 </div>

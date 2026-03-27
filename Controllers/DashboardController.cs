@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using TicketingSystem_DotNetMVC.Data;
 using TicketingSystem_DotNetMVC.Models;
 
@@ -27,6 +28,56 @@ namespace TicketingSystem_DotNetMVC.Controllers
             return HttpContext.Session.GetString("UserRole") == "User";
         }
 
+        // GET: Dashboard/ExportTicketPdf
+        [HttpGet]
+        public async Task<IActionResult> ExportTicketPdf(int id)
+        {
+            var userId = GetUserId();
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var ticket = await _context.Tickets
+                .Include(t => t.User)
+                .Include(t => t.AssignedAgent)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(t => t.TicketId == id);
+
+            if (ticket == null || (ticket.UserId != userId && HttpContext.Session.GetString("UserRole") == "User"))
+                return NotFound();
+
+            var sb = new StringBuilder();
+            sb.AppendLine("TICKET REPORT");
+            sb.AppendLine("=============");
+            sb.AppendLine($"Ticket ID: #{ticket.TicketId}");
+            sb.AppendLine($"Title: {ticket.Title}");
+            sb.AppendLine($"Status: {ticket.Status}");
+            sb.AppendLine($"Priority: {ticket.Priority}");
+            sb.AppendLine($"Created: {ticket.CreatedDate:dd MMM yyyy, HH:mm}");
+            sb.AppendLine($"User: {ticket.User?.FullName} ({ticket.User?.Email})");
+            sb.AppendLine($"Agent: {ticket.AssignedAgent?.FullName ?? "Unassigned"}");
+            sb.AppendLine("-------------");
+            sb.AppendLine("DESCRIPTION:");
+            sb.AppendLine(ticket.Description);
+            sb.AppendLine("-------------");
+            sb.AppendLine("CONVERSATION:");
+            foreach (var comment in ticket.Comments.OrderBy(c => c.CreatedDate))
+            {
+                sb.AppendLine($"[{comment.CreatedDate:dd MMM HH:mm}] {comment.User?.FullName}: {comment.Message}");
+            }
+
+            var content = sb.ToString();
+            var bytes = Encoding.UTF8.GetBytes(content);
+            return File(bytes, "text/plain", $"Ticket_{id}.txt");
+        }
+
+        private IActionResult RedirectToCorrectDashboard()
+        {
+            var role = HttpContext.Session.GetString("UserRole");
+            if (role == "Admin") return RedirectToAction("Dashboard", "Admin");
+            if (role == "Agent") return RedirectToAction("Dashboard", "Agent");
+            return RedirectToAction("Login", "Account");
+        }
+
         // GET: Dashboard
         [HttpGet]
         public async Task<IActionResult> Dashboard()
@@ -35,7 +86,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             var user = await _context.Users.FindAsync(userId);
             var tickets = await _context.Tickets.Where(t => t.UserId == userId).ToListAsync();
@@ -58,23 +109,42 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
             return View();
         }
 
         // POST: Dashboard/CreateTicket
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateTicket([Bind("Title,Description,Priority")] Ticket ticket)
+        public async Task<IActionResult> CreateTicket([Bind("Title,Description,Priority")] Ticket ticket, IFormFile? attachment)
         {
             var userId = GetUserId();
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             if (ModelState.IsValid)
             {
+                if (attachment != null && attachment.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "tickets");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + attachment.FileName;
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await attachment.CopyToAsync(fileStream);
+                    }
+
+                    ticket.Attachments = "/uploads/tickets/" + uniqueFileName;
+                }
+
                 ticket.UserId = userId.Value;
                 ticket.Status = TicketStatus.Open;
                 ticket.CreatedDate = DateTime.Now;
@@ -96,7 +166,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             var query = _context.Tickets.Where(t => t.UserId == userId);
 
@@ -132,9 +202,10 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             var ticket = await _context.Tickets
+                .Include(t => t.User)
                 .Include(t => t.Comments)
                 .ThenInclude(c => c.User)
                 .Include(t => t.AssignedAgent)
@@ -144,7 +215,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
                 return NotFound();
 
             if (ticket.UserId != userId)
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             return View(ticket);
         }
@@ -156,16 +227,24 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
-            var notifications = await _context.Comments
+            // Fetch system notifications
+            var systemNotifications = await _context.Notifications
+                .Where(n => n.TargetRole == "All" || n.TargetRole == "User" || n.UserId == userId.Value)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
+
+            // Fetch ticket comments as notifications
+            var ticketComments = await _context.Comments
                 .Include(c => c.User)
                 .Include(c => c.Ticket)
                 .Where(c => c.Ticket.UserId == userId.Value && c.UserId != userId.Value)
                 .OrderByDescending(c => c.CreatedDate)
                 .ToListAsync();
 
-            return View(notifications);
+            ViewBag.SystemNotifications = systemNotifications;
+            return View(ticketComments);
         }
 
         [HttpGet]
@@ -175,7 +254,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             var userTickets = await _context.Tickets
                 .Where(t => t.UserId == userId.Value)
@@ -215,14 +294,14 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
             if (!IsUser())
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             var ticket = await _context.Tickets.FindAsync(ticketId);
             if (ticket == null)
                 return NotFound();
 
             if (ticket.UserId != userId)
-                return Unauthorized();
+                return RedirectToCorrectDashboard();
 
             if (!string.IsNullOrEmpty(message))
             {
@@ -234,7 +313,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
                     CreatedDate = DateTime.Now
                 };
 
-                _context.Add(comment);
+                _context.Comments.Add(comment);
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = "Comment added successfully!";
@@ -286,9 +365,17 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (!IsUser())
                 return Unauthorized();
 
-            var user = await _context.Users.FindAsync(userId.Value);
+            var user = await _context.Users
+                .Include(u => u.CreatedTickets)
+                .FirstOrDefaultAsync(u => u.UserId == userId.Value);
+
             if (user == null)
                 return NotFound();
+
+            ViewBag.CreatedTicketsCount = user.CreatedTickets.Count;
+            ViewBag.OpenTicketsCount = user.CreatedTickets.Count(t => t.Status == TicketStatus.Open);
+            ViewBag.InProgressTicketsCount = user.CreatedTickets.Count(t => t.Status == TicketStatus.InProgress);
+            ViewBag.ClosedTicketsCount = user.CreatedTickets.Count(t => t.Status == TicketStatus.Closed);
 
             return View(user);
         }

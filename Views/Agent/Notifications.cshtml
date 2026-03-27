@@ -9,46 +9,90 @@
         <p class="page-subtitle">Recent activities and updates from users and admins.</p>
     </div>
 
-    @if (Model == null || !Model.Any())
-    {
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-5 text-center text-muted">
-                <div class="mb-4 text-primary opacity-25">
-                    <i class="fas fa-bell-slash fa-5x"></i>
+    <div class="row g-4">
+        <!-- System Announcements -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-bullhorn text-warning me-2"></i>Admin Broadcasts</h5>
                 </div>
-                <h4 class="fw-bold">No notifications yet.</h4>
-                <p>Stay tuned for updates on your assigned tickets.</p>
+                <div class="card-body p-0">
+                    @{
+                        var systemNotifs = ViewBag.SystemNotifications as List<TicketingSystem_DotNetMVC.Models.Notification>;
+                    }
+                    @if (systemNotifs != null && systemNotifs.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var notif in systemNotifs)
+                            {
+                                <div class="list-group-item p-3 border-0 border-bottom">
+                                    <h6 class="mb-1 fw-bold text-primary">@notif.Subject</h6>
+                                    <p class="mb-1 small text-secondary" style="white-space: pre-wrap;">@notif.Message</p>
+                                    <small class="text-muted extra-small">@notif.CreatedDate.ToString("MMM dd, hh:mm tt")</small>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-muted small">
+                            <i class="fas fa-info-circle mb-2 opacity-50"></i>
+                            <p class="mb-0">No broadcasts found.</p>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
-    }
-    else
-    {
-        <div class="list-group list-group-flush border-0 shadow-sm rounded-3">
-            @foreach (var notification in Model)
-            {
-                <a href="@Url.Action("TicketDetails", "Agent", new { id = notification.TicketId })" class="list-group-item list-group-item-action p-4 border-0 mb-2 rounded-3 shadow-sm bg-white">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle me-4">
-                            <i class="fas fa-comment-dots fa-lg"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h6 class="mb-0 fw-bold">New Comment on Ticket #@notification.TicketId</h6>
-                                <small class="text-muted"><i class="far fa-clock me-1"></i>@notification.CreatedDate.ToString("dd MMM, hh:mm tt")</small>
+
+        <!-- Ticket Activity -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-history text-primary me-2"></i>Ticket Activity</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model == null || !Model.Any())
+                    {
+                        <div class="p-5 text-center text-muted">
+                            <div class="mb-3">
+                                <i class="fas fa-bell-slash fa-3x opacity-25"></i>
                             </div>
-                            <div class="text-dark small mb-1">
-                                <strong>@notification.User.FullName</strong> commented on <em>"@notification.Ticket.Title"</em>
-                            </div>
-                            <div class="text-muted small text-truncate" style="max-width: 500px;">
-                                @notification.Message
-                            </div>
+                            <h6 class="fw-bold">No ticket updates.</h6>
+                            <p class="small">Updates on your assigned tickets will appear here.</p>
                         </div>
-                        <div class="ms-3">
-                            <i class="fas fa-chevron-right text-muted small"></i>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var notification in Model)
+                            {
+                                <a href="@Url.Action("TicketDetails", "Agent", new { id = notification.TicketId })" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle me-4">
+                                            <i class="fas fa-comment-dots fa-lg"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0 fw-bold small">New Comment on Ticket #@notification.TicketId</h6>
+                                                <small class="text-muted extra-small"><i class="far fa-clock me-1"></i>@notification.CreatedDate.ToString("dd MMM, hh:mm tt")</small>
+                                            </div>
+                                            <div class="text-dark small mb-1">
+                                                <strong>@notification.User.FullName</strong> commented on <em>"@notification.Ticket.Title"</em>
+                                            </div>
+                                            <div class="text-muted small text-truncate" style="max-width: 400px;">
+                                                @notification.Message
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <i class="fas fa-chevron-right text-muted small"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                            }
                         </div>
-                    </div>
-                </a>
-            }
+                    }
+                </div>
+            </div>
         </div>
-    }
+    </div>
 </div>

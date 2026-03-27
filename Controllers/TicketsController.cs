@@ -61,6 +61,7 @@ namespace TicketingSystem_DotNetMVC.Controllers
         {
             var ticket = await _context.Tickets
                 .Include(t => t.User)
+                .Include(t => t.AssignedAgent)
                 .Include(t => t.Comments)
                     .ThenInclude(c => c.User)
                 .FirstOrDefaultAsync(t => t.TicketId == id);
@@ -68,6 +69,30 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (ticket == null) return NotFound();
 
             return View(ticket);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int ticketId, string message)
+        {
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (userIdStr == null) return RedirectToAction("Login", "Account");
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                var comment = new Comment
+                {
+                    TicketId = ticketId,
+                    UserId = int.Parse(userIdStr),
+                    Message = message,
+                    CreatedDate = DateTime.Now
+                };
+
+                _context.Comments.Add(comment);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Details), new { id = ticketId });
         }
     }
 }

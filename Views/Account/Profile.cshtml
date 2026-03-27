@@ -54,21 +54,6 @@
 
                         <hr>
 
-                        <h5 class="mb-4 text-primary"><i class="fas fa-lock"></i> Change Password</h5>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Current Password</label>
-                            <input type="password" name="currentPassword" class="form-control form-control-lg" placeholder="Enter your current password">
-                            <small class="text-muted">Only required if you want to change your password</small>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">New Password</label>
-                            <input type="password" name="newPassword" class="form-control form-control-lg" placeholder="Leave blank to keep current password">
-                        </div>
-
-                        <hr>
-
                         <div class="mb-4 text-muted small">
                             <i class="fas fa-clock"></i> <strong>Last Login:</strong> @(Model.LastLoginDate?.ToString("dd MMM yyyy, hh:mm tt") ?? "Never")
                         </div>

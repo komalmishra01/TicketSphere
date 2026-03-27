@@ -1,17 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using TicketingSystem_DotNetMVC.Data;
 using TicketingSystem_DotNetMVC.Models;
+using TicketingSystem_DotNetMVC.Services;
 
 namespace TicketingSystem_DotNetMVC.Controllers
 {
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -59,15 +63,95 @@ namespace TicketingSystem_DotNetMVC.Controllers
                 .OrderByDescending(t => t.CreatedDate)
                 .ToListAsync();
 
+            var agents = await _context.Users
+                .Where(u => u.Role == "Agent" && u.IsActive)
+                .ToListAsync();
+
+            ViewBag.Agents = agents;
+
             return View(tickets);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignTicket(int ticketId, int agentId)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Admin")
+                return Unauthorized();
+
+            var ticket = await _context.Tickets.FindAsync(ticketId);
+            if (ticket == null) return NotFound();
+
+            var agent = await _context.Users.FindAsync(agentId);
+            if (agent == null || agent.Role != "Agent")
+            {
+                TempData["Error"] = "Invalid agent selected.";
+                return RedirectToAction(nameof(AllTickets));
+            }
+
+            ticket.AssignedAgentId = agentId;
+            ticket.Status = TicketStatus.InProgress;
+            ticket.UpdatedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Ticket #{ticketId} assigned to {agent.FullName}.";
+            return RedirectToAction(nameof(AllTickets));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Admin")
+                return Unauthorized();
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            // Check if it's the current admin
+            var currentUserId = HttpContext.Session.GetString("UserId");
+            if (currentUserId == id.ToString())
+            {
+                TempData["Error"] = "You cannot delete yourself.";
+                return RedirectToAction(user.Role == "Agent" ? nameof(ManageAgents) : nameof(ManageUsers));
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"{user.Role} deleted successfully.";
+            return RedirectToAction(user.Role == "Agent" ? nameof(ManageAgents) : nameof(ManageUsers));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUser(int userId, string fullName, string email)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Admin")
+                return Unauthorized();
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            user.FullName = fullName;
+            user.Email = email;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"{user.Role} updated successfully.";
+            return RedirectToAction(user.Role == "Agent" ? nameof(ManageAgents) : nameof(ManageUsers));
         }
 
         [HttpGet]
         public async Task<IActionResult> ManageUsers()
         {
             var userRole = HttpContext.Session.GetString("UserRole");
-            if (userRole != "Admin")
-                return Unauthorized();
+            if (userRole == null) return RedirectToAction("Login", "Account");
+            if (userRole != "Admin") return RedirectToAction("Index", "Home");
 
             var users = await _context.Users
                 .Where(u => u.Role == "User")
@@ -80,8 +164,8 @@ namespace TicketingSystem_DotNetMVC.Controllers
         public async Task<IActionResult> ManageAgents()
         {
             var userRole = HttpContext.Session.GetString("UserRole");
-            if (userRole != "Admin")
-                return Unauthorized();
+            if (userRole == null) return RedirectToAction("Login", "Account");
+            if (userRole != "Admin") return RedirectToAction("Index", "Home");
 
             var agents = await _context.Users
                 .Where(u => u.Role == "Agent")
@@ -91,14 +175,96 @@ namespace TicketingSystem_DotNetMVC.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ExportAllReports()
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole == null) return RedirectToAction("Login", "Account");
+            if (userRole != "Admin") return RedirectToAction("Index", "Home");
+
+            var tickets = await _context.Tickets
+                .Include(t => t.User)
+                .Include(t => t.AssignedAgent)
+                .OrderByDescending(t => t.CreatedDate)
+                .ToListAsync();
+
+            var sb = new StringBuilder();
+            sb.AppendLine("SYSTEM ANALYTICS REPORT");
+            sb.AppendLine("=======================");
+            sb.AppendLine($"Report Date: {DateTime.Now:dd MMM yyyy, HH:mm}");
+            sb.AppendLine($"Total Tickets: {tickets.Count}");
+            sb.AppendLine($"Open: {tickets.Count(t => t.Status == TicketStatus.Open)}");
+            sb.AppendLine($"In Progress: {tickets.Count(t => t.Status == TicketStatus.InProgress)}");
+            sb.AppendLine($"Closed: {tickets.Count(t => t.Status == TicketStatus.Closed)}");
+            sb.AppendLine("-----------------------");
+            sb.AppendLine("DETAILED TICKET LIST:");
+            sb.AppendLine("TicketId | Status | Priority | User | Agent | CreatedDate");
+            foreach (var t in tickets)
+            {
+                sb.AppendLine($"#{t.TicketId} | {t.Status} | {t.Priority} | {t.User?.FullName} | {t.AssignedAgent?.FullName ?? "Unassigned"} | {t.CreatedDate:yyyy-MM-dd HH:mm}");
+            }
+
+            var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/plain", "System_Full_Report.txt");
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Reports()
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole == null) return RedirectToAction("Login", "Account");
+            if (userRole != "Admin") return RedirectToAction("Index", "Home");
+
+            var tickets = await _context.Tickets.ToListAsync();
+            return View(tickets);
+        }
+
+        [HttpGet]
+        public IActionResult SendNotification()
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole == null) return RedirectToAction("Login", "Account");
+            if (userRole != "Admin") return RedirectToAction("Index", "Home");
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendNotification(string targetRole, string message, string subject)
         {
             var userRole = HttpContext.Session.GetString("UserRole");
             if (userRole != "Admin")
                 return Unauthorized();
 
-            var tickets = await _context.Tickets.ToListAsync();
-            return View(tickets);
+            var adminId = int.Parse(HttpContext.Session.GetString("UserId")!);
+            
+            var usersToNotify = _context.Users.AsQueryable();
+            if (targetRole != "All")
+            {
+                usersToNotify = usersToNotify.Where(u => u.Role == targetRole);
+            }
+
+            var userList = await usersToNotify.ToListAsync();
+
+            var notification = new Notification
+            {
+                TargetRole = targetRole,
+                Subject = subject,
+                Message = message,
+                CreatedDate = DateTime.Now
+            };
+
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
+
+            foreach (var user in userList)
+            {
+                // Send simulated email
+                await _emailService.SendEmailAsync(user.Email, subject, message);
+            }
+
+            TempData["Success"] = $"Notification broadcasted to {userList.Count} users via Web and Email.";
+            return RedirectToAction(nameof(Dashboard));
         }
 
         [HttpGet]
