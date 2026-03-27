@@ -3,6 +3,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TicketingSystem_DotNetMVC.Models
 {
+    public enum TicketPriority
+    {
+        Low,
+        Medium,
+        High
+    }
+
+    public enum TicketStatus
+    {
+        Open,
+        InProgress,
+        Closed
+    }
+
     public class Ticket
     {
         [Key]
@@ -16,10 +30,10 @@ namespace TicketingSystem_DotNetMVC.Models
         public string Description { get; set; } = string.Empty;
 
         [Required]
-        public string Priority { get; set; } = "Low"; // Low, Medium, High
+        public TicketPriority Priority { get; set; } = TicketPriority.Low;
 
         [Required]
-        public string Status { get; set; } = "Open"; // Open, In Progress, Closed
+        public TicketStatus Status { get; set; } = TicketStatus.Open;
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
@@ -42,6 +56,6 @@ namespace TicketingSystem_DotNetMVC.Models
         public string? Attachments { get; set; } // JSON array of file paths
 
         // Navigation Properties
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

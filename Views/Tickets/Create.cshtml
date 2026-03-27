@@ -1,0 +1,55 @@
+@model TicketingSystem_DotNetMVC.Models.Ticket
+@{
+    ViewData["Title"] = "Create Ticket";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-primary">Create New Service Request</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label fw-semibold">Problem Summary</label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. My printer is not working" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label fw-semibold">Detailed Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="5" placeholder="Please provide more details about the issue..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Priority" class="form-label fw-semibold">Priority Level</label>
+                            <select asp-for="Priority" class="form-select" asp-items="Html.GetEnumSelectList<TicketingSystem_DotNetMVC.Models.TicketPriority>()">
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Attachment (Optional)</label>
+                            <input type="file" name="file" class="form-control" />
+                            <div class="form-text">You can upload screenshots (max 5MB)</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-paper-plane me-2"></i>Submit Ticket</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
