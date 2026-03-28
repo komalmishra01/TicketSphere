@@ -3,58 +3,214 @@
     ViewData["Title"] = "Agent Profile";
 }
 
-<section class="profile-grid agent-profile-theme">
-    <div class="profile-card profile-identity">
-        <div class="profile-avatar">@((Model.FullName ?? "A")[0])</div>
-        <div>
-            <h2 class="profile-title">@Model.FullName</h2>
-            <p class="profile-subtitle">Support Agent</p>
-            <span class="profile-pill">Operations Team</span>
-        </div>
-    </div>
-
-    <div class="profile-card">
-        <h3 class="profile-section-title">Agent Credentials</h3>
-
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success">@TempData["Success"]</div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger">@TempData["Error"]</div>
-        }
-
-        <form method="post" asp-action="UpdateProfile" asp-controller="Agent" class="profile-form">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="userId" value="@Model.UserId" />
-
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Agent Name</label>
-                    <input type="text" class="form-control" name="fullName" value="@Model.FullName" required />
+<section class="profile-page-wrapper">
+    <div class="profile-page-grid">
+        <div class="profile-card profile-identity-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="profile-avatar">@((Model.FullName ?? "A")[0])</div>
+                <div>
+                    <h1 class="profile-title mb-0">@Model.FullName</h1>
+                    <p class="profile-subtitle mb-1">Support Agent</p>
+                    <span class="profile-pill">Operations Team</span>
                 </div>
-                <div class="col-md-6">
+            </div>
+        </div>
+
+        <div class="profile-card profile-overview-card">
+            <h2 class="profile-section-title">Activity Overview</h2>
+            <div class="row gx-3 text-center mt-3">
+                <div class="col-6 col-md-3">
+                    <div class="small text-muted">Joined</div>
+                    <div class="h5 mb-0">@Model.CreatedDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="small text-muted">Status</div>
+                    <div class="h5 mb-0">@(Model.IsActive ? "Active" : "Inactive")</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="small text-muted">Tickets</div>
+                    <div class="h5 mb-0">@(ViewBag.CreatedTicketsCount ?? 0)</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="small text-muted">Open / Closed</div>
+                    <div class="h5 mb-0">@(ViewBag.OpenTicketsCount ?? 0) / @(ViewBag.ClosedTicketsCount ?? 0)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card profile-settings-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="profile-section-title mb-0">Update Profile</h2>
+                <button type="button" id="editProfileBtn" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-pen-to-square me-1"></i>Edit Profile
+                </button>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-1"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-1"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form method="post" asp-action="UpdateProfile" asp-controller="Agent" class="profile-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="userId" value="@Model.UserId" />
+
+                <div class="mb-3">
+                    <label class="form-label">Agent Name</label>
+                    <input type="text" class="form-control editable-field" name="fullName" value="@Model.FullName" required disabled />
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Work Email</label>
                     <input type="email" class="form-control" value="@Model.Email" disabled />
                 </div>
-            </div>
 
-            <div class="row g-3 mt-1">
-                <div class="col-md-6">
-                    <label class="form-label">Current Password</label>
-                    <input type="password" class="form-control" name="currentPassword" />
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <input type="text" class="form-control" value="@Model.Role" disabled />
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">New Password</label>
-                    <input type="password" class="form-control" name="newPassword" />
-                </div>
-            </div>
 
-            <div class="d-flex justify-content-between align-items-center mt-4">
-                <small class="text-muted">Last login: @(Model.LastLoginDate?.ToString("dd MMM yyyy hh:mm tt") ?? "Never")</small>
-                <button type="submit" class="btn btn-warning text-dark px-4">Update</button>
-            </div>
-        </form>
+                <div class="mb-3">
+                    <label class="form-label">Last Login</label>
+                    <input type="text" class="form-control" value="@(Model.LastLoginDate?.ToString("dd MMM yyyy hh:mm tt") ?? "Never")" disabled />
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="submit" id="saveProfileBtn" class="btn btn-primary px-4" disabled>
+                        <i class="fas fa-save me-1"></i> Save
+                    </button>
+                    <a href="@Url.Action("Dashboard","Agent")" class="btn btn-outline-secondary px-4">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </section>
+
+<style>
+    .profile-page-wrapper {
+        width: 100%;
+        min-height: 100vh;
+        background: linear-gradient(160deg, #f8fbff, #f4f6fc 48%, #eef5fc);
+        padding: 24px 32px 32px;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+
+    .profile-page-grid {
+        max-width: 1300px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    .profile-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        padding: 20px;
+    }
+
+    .profile-identity-card {
+        grid-column: 1 / span 4;
+        min-height: 220px;
+    }
+
+    .profile-overview-card {
+        grid-column: 5 / span 8;
+        min-height: 220px;
+    }
+
+    .profile-settings-card {
+        grid-column: 1 / span 12;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        font-size: 2.1rem;
+        font-weight: 800;
+        background: linear-gradient(145deg, #e8edff, #c5d2f7);
+        color: #1f3fbb;
+    }
+
+    .profile-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+    }
+
+    .profile-section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #101828;
+    }
+
+    .profile-pill {
+        display: inline-block;
+        padding: 0.3rem 0.7rem;
+        border: 1px solid #c7d2fe;
+        border-radius: 999px;
+        background: #eff4ff;
+        color: #1c3ca7;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+
+    .profile-subtitle {
+        color: #64748b;
+        margin-bottom: 4px;
+        font-size: 1rem;
+    }
+
+    .profile-form .form-control[disabled] {
+        background-color: #f8fafc;
+    }
+
+    @@media (max-width: 992px) {
+        .profile-page-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-identity-card,
+        .profile-overview-card,
+        .profile-settings-card {
+            grid-column: 1 / -1;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function agentProfileEditToggle() {
+            const editBtn = document.getElementById('editProfileBtn');
+            const saveBtn = document.getElementById('saveProfileBtn');
+            const fields = document.querySelectorAll('.editable-field');
+
+            if (!editBtn || !saveBtn || !fields.length) {
+                return;
+            }
+
+            editBtn.addEventListener('click', function () {
+                fields.forEach(field => field.removeAttribute('disabled'));
+                saveBtn.removeAttribute('disabled');
+                editBtn.setAttribute('disabled', 'disabled');
+                fields[0].focus();
+            });
+        })();
+    </script>
+}

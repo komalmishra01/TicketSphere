@@ -278,9 +278,16 @@ namespace TicketingSystem_DotNetMVC.Controllers
             if (userRole != "Admin")
                 return Unauthorized();
 
-            var user = await _context.Users.FindAsync(int.Parse(userId));
+            var user = await _context.Users
+                .Include(u => u.CreatedTickets)
+                .FirstOrDefaultAsync(u => u.UserId == int.Parse(userId));
             if (user == null)
                 return NotFound();
+
+            ViewBag.CreatedTicketsCount = user.CreatedTickets.Count;
+            ViewBag.OpenTicketsCount = user.CreatedTickets.Count(t => t.Status == TicketStatus.Open);
+            ViewBag.InProgressTicketsCount = user.CreatedTickets.Count(t => t.Status == TicketStatus.InProgress);
+            ViewBag.ClosedTicketsCount = user.CreatedTickets.Count(t => t.Status == TicketStatus.Closed);
 
             return View(user);
         }
